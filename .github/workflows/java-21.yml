@@ -1,0 +1,29 @@
+name: Build on Java 21
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        java: ["21"]
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK ${{ matrix.java }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ matrix.java }}
+        distribution: temurin
+
+    - name: Compile
+      run: |
+        dir src
+        javac -d ../out $(dir /b /s *.java)
+    - name: List output
+      run: dir /s
