@@ -1,0 +1,92 @@
+/*package Objetos;
+public class CopiadeToken{
+    public static CopiadeToken ID = new CopiadeToken("ID");
+    public static CopiadeToken CAD = new CopiadeToken("CADENA");
+    public static CopiadeToken NUM = new CopiadeToken("NUMERO");
+    public static CopiadeToken VAR = new CopiadeToken("PAL_RES", 0);
+    public static CopiadeToken INT = new CopiadeToken("PAL_RES", 1);
+    public static CopiadeToken CHARS = new CopiadeToken("PAL_RES", 2);
+    public static CopiadeToken BOOL = new CopiadeToken("PAL_RES", 3);
+    public static CopiadeToken FOR = new CopiadeToken("PAL_RES", 4);
+    public static CopiadeToken FUNCTION = new CopiadeToken("PAL_RES", 5);
+    public static CopiadeToken RETURN = new CopiadeToken("PAL_RES", 6);
+    public static CopiadeToken TRUE = new CopiadeToken("PAL_RES", 7);
+    public static CopiadeToken FALSE = new CopiadeToken("PAL_RES", 8);
+    public static CopiadeToken WRITE = new CopiadeToken("PAL_RES", 9);
+    public static CopiadeToken PROMPT = new CopiadeToken("PAL_RES", 10);
+    public static CopiadeToken MAS = new CopiadeToken("OPERADOR", 0);
+    public static CopiadeToken ASIGNACION  = new CopiadeToken("OPERADOR", 1);
+    public static CopiadeToken ASIGNACIONOL = new CopiadeToken("OPERADOR", 2);
+    public static CopiadeToken MENOR = new CopiadeToken("OPERADOR", 3);
+    public static CopiadeToken O = new CopiadeToken("OPERADOR", 4);
+    public static CopiadeToken PARENTESIS_I = new CopiadeToken("CARACTER", "(");
+    public static CopiadeToken PARENTESIS_D = new CopiadeToken("CARACTER", ")");
+    public static CopiadeToken LLAVE_I = new CopiadeToken("CARACTER", "{");
+    public static CopiadeToken LLAVE_D = new CopiadeToken("CARACTER", "}");
+    public static CopiadeToken COMA = new CopiadeToken("CARACTER", ",");
+    public static CopiadeToken PUNTOCOMA = new CopiadeToken("CARACTER", ";");
+    public static CopiadeToken EOL = new CopiadeToken("EOL");
+    public static CopiadeToken EOF = new CopiadeToken("EOF");
+    public static CopiadeToken NULL = new CopiadeToken("NULL");
+    public static CopiadeToken LAMBDA = null;
+    private String identifier;
+    private Object attribute;
+    private Object value;
+
+    public CopiadeToken(String id) {
+        this.identifier = id;
+        this.attribute = null;
+        this.value = id;
+    }
+
+    public CopiadeToken(String id, Object attr) {
+        this.identifier = id;
+        this.attribute = attr;
+        this.value = id;
+    }
+
+    public CopiadeToken(String id, int attr) {
+        this.identifier = id;
+        this.attribute = attr;
+    }
+
+    public String getIdentifier() {
+        return this.identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+    
+    public Object getAttribute() {
+        return this.attribute;
+    }
+    
+    public void setAttribute(String attribute) {
+        this.attribute = attribute;
+    }
+   
+    public Object getValue() {
+        return this.value;
+    }
+   
+    public void setValue(Object value) {
+        this.value = value;
+    } 
+    @Override
+    public boolean equals(Object obj) {
+    	boolean ret = false;
+    	CopiadeToken tok = (CopiadeToken) obj;
+    	if((tok.getIdentifier() == this.identifier) && (this.attribute == tok.getAttribute())){
+    		ret = true;
+    	}
+    	return ret;
+    }
+    @Override
+    public String toString() {
+        if (this.attribute == null) {
+            return "<" + this.identifier + ", >";
+        }
+        return "<" + this.identifier + ", " + this.attribute + ">";
+    }
+}*/

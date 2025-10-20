@@ -1,0 +1,20 @@
+package General;
+
+import Analizador.AnalizadorSintactico;
+import java.io.File;
+
+public class InicializaPrograma {
+
+	public static void main(String[] args) {
+		String path = args[0];
+		// String path = "C:\\Users\\RAYS\\Documents\\Salidas\\prueba01.js";
+		File miDir = new File(".");
+		String pathAbsoluto = "";
+		try {
+			pathAbsoluto = miDir.getCanonicalPath();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		AnalizadorSintactico analizaS = new AnalizadorSintactico(path, pathAbsoluto);
+	}
+}

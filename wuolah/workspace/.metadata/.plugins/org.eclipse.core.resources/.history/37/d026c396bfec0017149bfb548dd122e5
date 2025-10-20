@@ -1,0 +1,62 @@
+package Objetos;
+
+import java.io.IOException;
+import java.io.File;
+import java.io.FileInputStream;
+
+public class Reader{
+	private FileInputStream fileReader;
+	private int currentLine;
+	public Reader(String file_path) {
+		//Writter escrituraS = new Writter("C:/Users/Efesan615/Documents/Salidas/tabla.txt");
+		//escrituraS.write(file_path);
+		File file = new File(file_path);
+		if (!file.exists()) {
+			System.out.println(String.format("El fichero %s no existe.", file_path));
+			return;
+		}
+		if (!file.isFile() || !file.canRead()) {
+			System.out.println(String.format("El fichero %s no tiene permiso de lectura.", file_path));
+			return;
+		}
+		try {
+			this.fileReader = new FileInputStream(file);
+		}
+		catch (IOException ex) {}
+		this.currentLine = 1;
+	}
+
+	public char read() {
+		char current_character = '\0';
+		try {
+			if (this.fileReader.available() > 0) {
+				current_character = (char) this.fileReader.read();
+				if (current_character == '\n') {
+					++this.currentLine;
+				}
+			}
+		}
+		catch (IOException ex) {}
+		return current_character;
+	}
+
+	public boolean close() {
+		boolean status = false;
+		try {
+			this.fileReader.close();
+			status = true;
+		}
+		catch (IOException ex) {
+		}
+		return status;
+	}
+
+	public int getCurrentLine() {
+		return this.currentLine;
+		
+	}
+	
+	public FileInputStream getFile() {
+		return this.fileReader;
+	}
+}

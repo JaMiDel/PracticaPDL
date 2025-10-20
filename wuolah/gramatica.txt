@@ -1,0 +1,71 @@
+Axioma = Z
+
+Terminales = { eol eof var id while ( ; ) { } function write return prompt = , > || %= % int chars bool cadena entero true false }
+
+NoTerminales = { Z P B I 1 2 D 3 S M T X R N V O U W E Y L Q F G H A K C J }
+
+Producciones = {
+	Z -> P
+	Z -> eol Z
+	P -> B eol Z
+	P -> F eol Z
+	P -> eof
+	B -> var T id D	
+	B -> while ( R ) eol I
+	B -> S
+	I -> S
+	I -> { eol 1 }
+	1 -> B eol 2
+	2 -> 1
+	2 -> lambda
+	D -> , id D
+	D -> = R 3
+	D -> lambda
+	3 -> , id D
+	3 -> lambda
+	S -> id M
+	S -> return X
+	S -> write ( R )
+	S -> prompt ( id )
+	M -> = R
+	M -> > R
+	M -> ( L )
+	T -> int
+	T -> bool 
+	T -> chars
+	X -> R
+	X -> lambda 
+	R -> V N
+	N -> || V N
+	N -> lambda
+	V -> U O
+	O -> %= U
+	O -> lambda
+	U -> E W
+	W -> % U
+	W -> lambda
+	E -> id Y
+	E -> ( R )
+	E -> entero
+	E -> cadena
+	E -> true
+	E -> false
+	Y -> ( L )
+	Y -> lambda
+	L -> R Q
+	L -> lambda
+	Q -> , R Q
+	Q -> lambda
+	F -> function H id ( A ) eol G { eol C }
+	G -> eol G
+	G -> lambda
+	H -> T
+	H -> lambda
+	A -> T id K
+	A -> lambda
+	K -> , T id K
+	K -> lambda
+	C -> B eol G J
+	J -> C
+	J -> lambda
+}

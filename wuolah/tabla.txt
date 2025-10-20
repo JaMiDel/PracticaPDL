@@ -1,0 +1,46 @@
+CONTENIDO DE LA TABLA # 1:
+* LEXEMA: 'a'
+   ATRIBUTOS:
+   + tipo: 'undefined'
+* LEXEMA: 'pp'
+   ATRIBUTOS:
+   + tipo: 'undefined'
+
+CONTENIDO DE LA TABLA # 2:
+* LEXEMA: 'kk'
+   ATRIBUTOS:
+   + tipo: 'INT'
+   + desplazamiento: 0
+* LEXEMA: 'bb'
+   ATRIBUTOS:
+   + tipo: 'BOOL'
+   + desplazamiento: 2
+
+CONTENIDO DE LA TABLA # 0:
+* LEXEMA: 'kk'
+   ATRIBUTOS:
+   + tipo: 'INT'
+   + desplazamiento: 0
+* LEXEMA: 'kkk'
+   ATRIBUTOS:
+   + tipo: 'BOOL'
+   + desplazamiento: 2
+* LEXEMA: 'a'
+   ATRIBUTOS:
+   + tipo: 'CHARS'
+   + desplazamiento: 3
+* LEXEMA: 'b'
+   ATRIBUTOS:
+   + tipo: 'INT'
+   + desplazamiento: 11
+* LEXEMA: 'c'
+   ATRIBUTOS:
+   + tipo: 'INT'
+   + desplazamiento: 13
+* LEXEMA: 'str'
+   ATRIBUTOS:
+   + tipo: 'CHARS,INT,INT->CHARS'
+* LEXEMA: 'k'
+   ATRIBUTOS:
+   + tipo: 'INT,BOOL->INT'
+

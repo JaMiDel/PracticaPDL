@@ -1,0 +1,17 @@
+package General;
+
+
+import Analizador.AnalizadorSintactico;
+import Objetos.Reader;
+import Objetos.Writter;
+
+public class InicializaPrograma{
+
+	public static void main(String[] args) {
+		String path = args[0];
+		//String path = "C:\\Users\\RAYS\\Documents\\Salidas\\prueba01.js";
+		AnalizadorSintactico analizaS = new AnalizadorSintactico(path);
+		
+	}
+	
+}
