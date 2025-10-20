@@ -1,5 +1,5 @@
 git add .
-git commit -m "version"
+git commit -m "mensaje descriptivo del cambio"
 git push
 
 git pull
