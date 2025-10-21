@@ -1,15 +1,18 @@
+import simbolos.Simbolo;
 import simbolos.TablaSimbolos;
 import tokens.TipoToken;
+import tokens.Token;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ALex {
     private final BufferedReader reader;
-    private int linea;
+    private final int linea;
     private int nextChar;
 
     private final TablaSimbolos tablaSimbolos;
@@ -39,5 +42,53 @@ public class ALex {
         this.tablaSimbolos = tablaSimbolos;
         this.linea = 1;
         this.nextChar = -1;
+    }
+
+    public Token getNextToken() throws IOException {
+        int estado = 0;
+        StringBuilder lexema = new StringBuilder();
+        int c;
+
+        while(true){
+            c = readChar();
+
+            switch(estado){
+                case 0:
+                    if(Character.isLetter(c)){
+                        lexema.append((char) c);
+                        estado = 1;
+                    }
+                    break;
+                case 1:
+                    if (Character.isLetterOrDigit((char) c) || c == '_') {
+                        lexema.append((char) c);
+                    } else {
+                        this.nextChar = c; //unreadChar();
+                        
+                        String lexemaFinal = lexema.toString();
+                        
+                        if(palabrasReservadas.containsKey(lexemaFinal)){
+                            return new Token(palabrasReservadas.get(lexemaFinal), lexemaFinal, null, linea);
+                        } else {
+                            Simbolo s = tablaSimbolos.findOrInsert(lexemaFinal);
+                            
+                            return new Token(TipoToken.Tipo.IDENTIFICADOR, lexemaFinal, s.id, linea);
+                        }
+                    }
+                    break;
+            }
+        }
+    }
+
+    private int readChar() throws IOException {
+        if(this.nextChar != -1){
+            int charDevuelto = this.nextChar;
+
+            this.nextChar = -1;
+
+            return charDevuelto;
+        } else {
+            return this.reader.read();
+        }
     }
 }
