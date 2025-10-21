@@ -58,6 +58,10 @@ public class ALex {
                         lexema.append((char) c);
                         estado = 1;
                     }
+                    if(Character.isDigit(c)){
+                        lexema.append((char) c);
+                        estado = 2;
+                    }
                     break;
                 case 1:
                     if (Character.isLetterOrDigit((char) c) || c == '_') {
@@ -73,6 +77,46 @@ public class ALex {
                             Simbolo s = tablaSimbolos.findOrInsert(lexemaFinal);
                             
                             return new Token(TipoToken.Tipo.IDENTIFICADOR, lexemaFinal, s.id, linea);
+                        }
+                    }
+                    break;
+                case 2:
+                    if(Character.isDigit((char) c)){
+                        lexema.append((char) c);
+                    } else if (c == '.') {
+                        lexema.append((char) c);
+                        estado = 3;
+                    } else {
+                        this.nextChar = c;
+
+                        try {
+                            int valor = Integer.parseInt(lexema.toString());
+                            return new Token(TipoToken.Tipo.CONSTANTE_ENTERA, lexema.toString(), valor, linea);
+                        } catch (NumberFormatException e) {
+                            return new Token(TipoToken.Tipo.ERROR, lexema.toString(), "Entero fuera de Rango", linea);
+                        }
+                    }
+                    break;
+                case 3:
+                    if(Character.isDigit((char) c)){
+                        lexema.append((char) c);
+                        estado = 31;
+                    } else {
+                        this.nextChar = c;
+                        return new Token(TipoToken.Tipo.ERROR, lexema.toString(), "Numero Real mal Formado", linea);
+                    }
+                    break;
+                case 31:
+                    if(Character.isDigit((char) c)){
+                        lexema.append((char) c);
+                    } else {
+                        this.nextChar = c;
+
+                        try {
+                            int valor = Integer.parseInt(lexema.toString());
+                            return new Token(TipoToken.Tipo.CONSTANTE_REAL, lexema.toString(), valor, linea);
+                        } catch (NumberFormatException e) {
+                            return new Token(TipoToken.Tipo.ERROR, lexema.toString(), "Numero Real fuera de Rango", linea);
                         }
                     }
                     break;
