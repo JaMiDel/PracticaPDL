@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class ALex {
     private final BufferedReader reader;
-    private final int linea;
+    private int linea;
     private int nextChar;
 
     private final TablaSimbolos tablaSimbolos;
@@ -61,6 +61,13 @@ public class ALex {
                     if(Character.isDigit(c)){
                         lexema.append((char) c);
                         estado = 2;
+                    }
+                    if(c == '\'') {
+                        lexema.setLength(0);
+                        estado = 4;
+                    }
+                    if (c == '/'){
+                        estado = 5;
                     }
                     break;
                 case 1:
@@ -120,6 +127,40 @@ public class ALex {
                         }
                     }
                     break;
+                case 4:
+                    if(c == '\''){
+                        String contenidoCadena = lexema.toString();
+
+                        String lexemaCompleto = "'" + contenidoCadena + "'";
+
+                        return new Token(TipoToken.Tipo.CADENA, lexemaCompleto, contenidoCadena, linea);
+                    } else if (c == -1) {
+                        return new Token(TipoToken.Tipo.ERROR, lexema.toString(), "Cadena sin cerrar al final del fichero", linea);
+                    } else if (c == '\n') {
+                        this.nextChar = c;
+                        return new Token(TipoToken.Tipo.ERROR, lexema.toString(), "Salto de linea en medio de una cadena", linea);
+                    } else {
+                        lexema.append((char) c);
+                    }
+                    break;
+                case 5:
+                    if(c == '/'){
+                        estado = 6;
+                    } else{
+                        this.nextChar = c;
+
+                        return new Token(TipoToken.Tipo.ENTRE, "/", null, linea);
+                    }
+                    break;
+                case 6:
+                    while((c = readChar()) != '\n' && c != -1){
+
+                    }
+                    if(c == '\n'){
+                        linea++;
+                    }
+                    estado = 0;
+                    continue;
             }
         }
     }
