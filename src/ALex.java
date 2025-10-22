@@ -120,6 +120,17 @@ public class ALex {
                     else if(c == '}'){
                         lexema.append((char) c);
                         return new Token(TipoToken.Tipo.LLAVEDER, lexema.toString(), null, linea);
+                    } else {
+                        if(c == -1){
+                            return new Token(TipoToken.Tipo.EOF, "EOF", null, linea);
+                        } else if (Character.isWhitespace(c)) {
+                            if(c == '\n') linea++;
+                            continue;
+                        } else {
+                            String lexemaError = String.valueOf((char) c);
+                            return new Token(TipoToken.Tipo.ERROR, lexemaError,
+                                    "Simbolo '" + lexemaError + "' no renonocido por el lenguaje", linea);
+                        }
                     }
                     break;
                 case 1:
@@ -240,7 +251,7 @@ public class ALex {
                 case 10:
                     if(c == '&'){
                         lexema.append((char) c);
-                        return new Token(TipoToken.Tipo.IGUAL, lexema.toString(), null, linea);
+                        return new Token(TipoToken.Tipo.AND, lexema.toString(), null, linea);
                     } else {
                         this.nextChar = c;
                         return new Token(TipoToken.Tipo.ERROR, lexema.toString(), "Se esperaba un '&' despues del '&'", linea);
