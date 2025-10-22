@@ -69,6 +69,10 @@ public class ALex {
                     if (c == '/'){
                         estado = 5;
                     }
+                    if(c == '%'){
+                        lexema.append((char) c);
+                        estado = 7;
+                    }
                     break;
                 case 1:
                     if (Character.isLetterOrDigit((char) c) || c == '_') {
@@ -161,6 +165,13 @@ public class ALex {
                     }
                     estado = 0;
                     continue;
+                case 7:
+                    if(c == '='){
+                        lexema.append((char) c);
+                        return new Token(TipoToken.Tipo.ASIGNACIONMODULO, lexema.toString(), null, linea);
+                    } else {
+                        return new Token(TipoToken.Tipo.ERROR, lexema.toString(), "Simbolo no reconocido", linea);
+                    }
             }
         }
     }
