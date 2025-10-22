@@ -58,20 +58,68 @@ public class ALex {
                         lexema.append((char) c);
                         estado = 1;
                     }
-                    if(Character.isDigit(c)){
+                    else if(Character.isDigit(c)){
                         lexema.append((char) c);
                         estado = 2;
                     }
-                    if(c == '\'') {
+                    else if(c == '\'') {
                         lexema.setLength(0);
                         estado = 4;
                     }
-                    if (c == '/'){
+                    else if (c == '/'){
                         estado = 5;
                     }
-                    if(c == '%'){
+                    else if(c == '%'){
                         lexema.append((char) c);
                         estado = 7;
+                    }
+                    else if(c == '='){
+                        lexema.append((char) c);
+                        estado = 8;
+                    }
+                    else if(c == '<'){
+                        lexema.append((char) c);
+                        estado = 9;
+                    }
+                    else if(c == '&'){
+                        lexema.append((char) c);
+                        estado = 10;
+                    }
+                    else if(c == '+'){
+                        lexema.append((char) c);
+                        return new Token(TipoToken.Tipo.SUMA, lexema.toString(), null, linea);
+                    }
+                    else if(c == '*'){
+                        lexema.append((char) c);
+                        return new Token(TipoToken.Tipo.POR, lexema.toString(), null, linea);
+                    }
+                    else if(c == ','){
+                        lexema.append((char) c);
+                        return new Token(TipoToken.Tipo.COMA, lexema.toString(), null, linea);
+                    }
+                    else if(c == ';'){
+                        lexema.append((char) c);
+                        return new Token(TipoToken.Tipo.PUNTOYCOMA, lexema.toString(), null, linea);
+                    }
+                    else if(c == ':'){
+                        lexema.append((char) c);
+                        return new Token(TipoToken.Tipo.DOSPUNTOS, lexema.toString(), null, linea);
+                    }
+                    else if(c == '('){
+                        lexema.append((char) c);
+                        return new Token(TipoToken.Tipo.PARENTESISIZQ, lexema.toString(), null, linea);
+                    }
+                    else if(c == ')'){
+                        lexema.append((char) c);
+                        return new Token(TipoToken.Tipo.PARENTESISDER, lexema.toString(), null, linea);
+                    }
+                    else if(c == '{'){
+                        lexema.append((char) c);
+                        return new Token(TipoToken.Tipo.LLAVEIZQ, lexema.toString(), null, linea);
+                    }
+                    else if(c == '}'){
+                        lexema.append((char) c);
+                        return new Token(TipoToken.Tipo.LLAVEDER, lexema.toString(), null, linea);
                     }
                     break;
                 case 1:
@@ -124,7 +172,7 @@ public class ALex {
                         this.nextChar = c;
 
                         try {
-                            int valor = Integer.parseInt(lexema.toString());
+                            double valor = Double.parseDouble(lexema.toString());
                             return new Token(TipoToken.Tipo.CONSTANTE_REAL, lexema.toString(), valor, linea);
                         } catch (NumberFormatException e) {
                             return new Token(TipoToken.Tipo.ERROR, lexema.toString(), "Numero Real fuera de Rango", linea);
@@ -170,7 +218,32 @@ public class ALex {
                         lexema.append((char) c);
                         return new Token(TipoToken.Tipo.ASIGNACIONMODULO, lexema.toString(), null, linea);
                     } else {
-                        return new Token(TipoToken.Tipo.ERROR, lexema.toString(), "Simbolo no reconocido", linea);
+                        this.nextChar = c;
+                        return new Token(TipoToken.Tipo.ERROR, lexema.toString(), "Se esperaba un '=' despues del '%'", linea);
+                    }
+                case 8:
+                    if(c == '='){
+                        lexema.append((char) c);
+                        return new Token(TipoToken.Tipo.IGUAL, lexema.toString(), null, linea);
+                    } else {
+                        this.nextChar = c;
+                        return new Token(TipoToken.Tipo.ASIGNACION, lexema.toString(), null, linea);
+                    }
+                case 9:
+                    if(c == '='){
+                        lexema.append((char) c);
+                        return new Token(TipoToken.Tipo.MENORIGUAL, lexema.toString(), null, linea);
+                    } else {
+                        this.nextChar = c;
+                        return new Token(TipoToken.Tipo.ERROR, lexema.toString(), "Se esperaba un '=' despues del '<'", linea);
+                    }
+                case 10:
+                    if(c == '&'){
+                        lexema.append((char) c);
+                        return new Token(TipoToken.Tipo.IGUAL, lexema.toString(), null, linea);
+                    } else {
+                        this.nextChar = c;
+                        return new Token(TipoToken.Tipo.ERROR, lexema.toString(), "Se esperaba un '&' despues del '&'", linea);
                     }
             }
         }
