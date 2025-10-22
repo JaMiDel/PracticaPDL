@@ -1,4 +1,4 @@
-package tokens;
+package analizadorSintactico.tokens;
 
 public class Token {
     public final TipoToken.Tipo tipo;

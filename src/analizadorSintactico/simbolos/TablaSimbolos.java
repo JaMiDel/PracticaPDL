@@ -1,4 +1,4 @@
-package simbolos;
+package analizadorSintactico.simbolos;
 
 import java.util.HashMap;
 import java.util.Map;

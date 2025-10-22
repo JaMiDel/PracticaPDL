@@ -1,4 +1,4 @@
-package simbolos;
+package analizadorSintactico.simbolos;
 
 public class Simbolo {
     public final String lexema;
