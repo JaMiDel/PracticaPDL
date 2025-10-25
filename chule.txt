@@ -3,3 +3,10 @@ git commit -m "mensaje descriptivo del cambio"
 git push
 
 git pull
+
+
+int: 2
+float: 4
+char: 1
+string: 64
+boolean: 1

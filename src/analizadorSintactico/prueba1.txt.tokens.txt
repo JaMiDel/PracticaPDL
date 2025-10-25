@@ -1,0 +1,2 @@
+<IDENTIFICADOR, true, 0>    Linea: 1
+<EOF, EOF, ninguno>    Linea: 1

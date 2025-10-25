@@ -14,4 +14,10 @@ public class Token {
         this.linea = linea;
     }
 
+    public String toFileString(){
+        String atrib = (atributo != null) ? atributo.toString() : "ninguno";
+        String str = "<" + this.tipo.name() + ", " + this.lexema + ", " + atrib + ">    Linea: " + this.linea;
+
+        return str;
+    }
 }

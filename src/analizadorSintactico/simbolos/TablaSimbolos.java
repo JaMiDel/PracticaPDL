@@ -1,5 +1,8 @@
 package analizadorSintactico.simbolos;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +24,19 @@ public class TablaSimbolos {
             nextId++;
 
             return nuevoSimbolo;
+        }
+    }
+
+    public void volcarAFichero(String fichero) throws IOException{
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(fichero))){
+            writer.write("--- Tabla de Símbolos ---");
+            writer.newLine();
+            writer.newLine();
+
+            for(Simbolo s : table.values()){
+                writer.write("  > " + s.toString());
+                writer.newLine();
+            }
         }
     }
 }
