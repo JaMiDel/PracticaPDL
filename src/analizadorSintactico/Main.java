@@ -15,9 +15,9 @@ public class Main {
             return;
         }
         
-        String ficheroErrores = args[0] + ".errores.txt";
-        String ficheroTokens = args[0] + ".tokens.txt";
-        String ficheroSimbolos = args[0] + ".simbolos.txt";
+        String ficheroErrores = args[0] + "_errores.txt";
+        String ficheroTokens = args[0] + "_tokens.txt";
+        String ficheroSimbolos = args[0] + "_simbolos.txt";
 
         TablaSimbolos tablaSimbolos = new TablaSimbolos();
         ALex aLex;
