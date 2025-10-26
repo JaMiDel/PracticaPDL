@@ -1,8 +1,0 @@
-        boolean
-
-%=
-==
-
-j_ava
-
-'hola' //mundo

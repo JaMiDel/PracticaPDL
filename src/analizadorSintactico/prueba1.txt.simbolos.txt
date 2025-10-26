@@ -1,3 +1,0 @@
---- Tabla de Símbolos ---
-
-  > ID: 0 |   Lexema: true
