@@ -28,7 +28,9 @@ public class TablaSimbolos {
     }
 
     public void volcarAFichero(String fichero) throws IOException{
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(fichero))){
+
+        try(FileWriter fileWriter = new FileWriter(fichero);
+             BufferedWriter writer = new BufferedWriter(fileWriter)){
             writer.write("--- Tabla de Símbolos ---");
             writer.newLine();
             writer.newLine();
