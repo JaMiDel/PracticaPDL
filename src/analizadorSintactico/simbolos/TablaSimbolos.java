@@ -33,7 +33,7 @@ public class TablaSimbolos {
             writer.newLine();
 
             for (Simbolo s : this.table.values()) {
-                String lineaSimbolo = String.format("* '%s'", s.lexema);
+                String lineaSimbolo = String.format("* '" + s.lexema + "'");
                 writer.write(lineaSimbolo);
                 writer.newLine();
             }

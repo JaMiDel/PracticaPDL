@@ -17,7 +17,7 @@ public class Token {
     @Override
     public String toString() {
         String atrib = (atributo != null) ? atributo.toString() : "ninguno";
-        return String.format("<%s, %s, %s> (Línea: %d)", this.tipo.name(), this.lexema, atrib, this.linea);
+        return "<" + this.tipo.name() + ", " + this.lexema + ", " + atrib + "> (Linea: " + this.linea + ")";
     }
 
     public String toFileString() {
