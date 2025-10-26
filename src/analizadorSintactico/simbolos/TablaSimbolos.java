@@ -27,16 +27,14 @@ public class TablaSimbolos {
         }
     }
 
-    public void volcarAFichero(String fichero) throws IOException{
-
-        try(FileWriter fileWriter = new FileWriter(fichero);
-             BufferedWriter writer = new BufferedWriter(fileWriter)){
-            writer.write("--- Tabla de Símbolos ---");
-            writer.newLine();
+    public void volcarAFichero(String filePath) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            writer.write("TABLA PRINCIPAL # 1 :");
             writer.newLine();
 
-            for(Simbolo s : table.values()){
-                writer.write("  > " + s.toString());
+            for (Simbolo s : this.table.values()) {
+                String lineaSimbolo = String.format("* '%s'", s.lexema);
+                writer.write(lineaSimbolo);
                 writer.newLine();
             }
         }

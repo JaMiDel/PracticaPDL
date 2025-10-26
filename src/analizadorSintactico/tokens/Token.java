@@ -14,10 +14,26 @@ public class Token {
         this.linea = linea;
     }
 
-    public String toFileString(){
+    @Override
+    public String toString() {
         String atrib = (atributo != null) ? atributo.toString() : "ninguno";
-        String str = "<" + this.tipo.name() + ", " + this.lexema + ", " + atrib + ">    Linea: " + this.linea;
+        return String.format("<%s, %s, %s> (Línea: %d)", this.tipo.name(), this.lexema, atrib, this.linea);
+    }
 
-        return str;
+    public String toFileString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("< ").append(this.tipo.codigo);
+
+        if (this.atributo != null) {
+            sb.append(" , ");
+            if (this.tipo == TipoToken.Tipo.CADENA) {
+                sb.append("'").append(this.atributo.toString()).append("'");
+            } else {
+                sb.append(this.atributo.toString());
+            }
+        }
+
+        sb.append(" >");
+        return sb.toString();
     }
 }
