@@ -131,7 +131,7 @@ public class ALex {
                         } else {
                             String lexemaError = String.valueOf((char) c);
                             return new Token(TipoToken.Tipo.ERROR, lexemaError,
-                                    "Simbolo '" + lexemaError + "' no renonocido por el lenguaje", linea);
+                                    "Simbolo '" + lexemaError + "' no reconocido por el lenguaje", linea);
                         }
                     }
                     break;

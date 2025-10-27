@@ -1,0 +1,3 @@
+float a = 4.6;
+float b = a % 4;
+return b;

@@ -1,0 +1,2 @@
+int resultado = 1;
+if (resultado > 0) // Comprobar si es negativo
