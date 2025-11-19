@@ -1,0 +1,3 @@
+let variable_valida = 1;
+float real_grande = 2147483648.5; 
+string texto = 'Cadena normal';

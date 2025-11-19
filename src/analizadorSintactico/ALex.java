@@ -143,6 +143,10 @@ public class ALex {
 
                         String lexemaFinal = lexema.toString();
 
+                        if(lexemaFinal.length() > 64) {
+                            return new Token(TipoToken.Tipo.ERROR, lexemaFinal, "Identificador demasiado largo", linea);
+                        }
+
                         if(palabrasReservadas.containsKey(lexemaFinal)){
                             return new Token(palabrasReservadas.get(lexemaFinal), lexemaFinal, null, linea);
                         } else {
@@ -162,7 +166,10 @@ public class ALex {
                         this.nextChar = c;
 
                         try {
-                            int valor = Integer.parseInt(lexema.toString());
+                            long valor = Integer.parseInt(lexema.toString());
+                            if (valor > 32767) {
+                                return new Token(TipoToken.Tipo.ERROR, lexema.toString(), "Entero fuera de rango", linea);
+                            }
                             return new Token(TipoToken.Tipo.CONSTANTE_ENTERA, lexema.toString(), valor, linea);
                         } catch (NumberFormatException e) {
                             return new Token(TipoToken.Tipo.ERROR, lexema.toString(), "Entero fuera de Rango", linea);
@@ -186,6 +193,9 @@ public class ALex {
 
                         try {
                             double valor = Double.parseDouble(lexema.toString());
+                            if (valor > 2147483647) {
+                                return new Token(TipoToken.Tipo.ERROR, lexema.toString(), "Numero Real fuera de Rango", linea);
+                            }
                             return new Token(TipoToken.Tipo.CONSTANTE_REAL, lexema.toString(), valor, linea);
                         } catch (NumberFormatException e) {
                             return new Token(TipoToken.Tipo.ERROR, lexema.toString(), "Numero Real fuera de Rango", linea);
@@ -195,6 +205,10 @@ public class ALex {
                 case 4:
                     if(c == '\''){
                         String contenidoCadena = lexema.toString();
+
+                        if(contenidoCadena.length() > 64){
+                            return new Token(TipoToken.Tipo.ERROR, "'" + contenidoCadena + "'", "Cadena demasiado larga", linea);
+                        }
 
                         String lexemaCompleto = "'" + contenidoCadena + "'";
 
