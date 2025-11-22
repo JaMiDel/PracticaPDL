@@ -115,7 +115,7 @@ public class ASint {
                 pila.push(TipoToken.Tipo.PUNTOYCOMA);
                 pila.push(TipoToken.Tipo.PARENTESISDER);
                 pila.push(NoTerminal.lArgs);
-                pila.push(TipoToken.Tipo.PARENTESISDER);
+                pila.push(TipoToken.Tipo.PARENTESISIZQ);
                 break;
             case 18: // opA → ASIGNACION
                 pila.push(TipoToken.Tipo.ASIGNACION);
@@ -158,6 +158,7 @@ public class ASint {
                 pila.push(TipoToken.Tipo.LLAVEDER);
                 pila.push(NoTerminal.cSw);
                 pila.push(TipoToken.Tipo.LLAVEIZQ);
+                pila.push(TipoToken.Tipo.PARENTESISDER);
                 pila.push(NoTerminal.e);
                 pila.push(TipoToken.Tipo.PARENTESISIZQ);
                 pila.push(TipoToken.Tipo.SWITCH);
