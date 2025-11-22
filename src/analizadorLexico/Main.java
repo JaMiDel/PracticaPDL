@@ -1,8 +1,8 @@
-package analizadorSintactico;
+package analizadorLexico;
 
-import analizadorSintactico.simbolos.TablaSimbolos;
-import analizadorSintactico.tokens.TipoToken;
-import analizadorSintactico.tokens.Token;
+import analizadorLexico.simbolos.TablaSimbolos;
+import analizadorLexico.tokens.TipoToken;
+import analizadorLexico.tokens.Token;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;

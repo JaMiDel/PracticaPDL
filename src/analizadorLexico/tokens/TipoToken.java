@@ -1,4 +1,4 @@
-package analizadorSintactico.tokens;
+package analizadorLexico.tokens;
 
 public class TipoToken {
     public enum Tipo {

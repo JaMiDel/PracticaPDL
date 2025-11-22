@@ -1,9 +1,9 @@
-package analizadorSintactico;
+package analizadorLexico;
 
-import analizadorSintactico.simbolos.Simbolo;
-import analizadorSintactico.simbolos.TablaSimbolos;
-import analizadorSintactico.tokens.TipoToken;
-import analizadorSintactico.tokens.Token;
+import analizadorLexico.simbolos.Simbolo;
+import analizadorLexico.simbolos.TablaSimbolos;
+import analizadorLexico.tokens.TipoToken;
+import analizadorLexico.tokens.Token;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

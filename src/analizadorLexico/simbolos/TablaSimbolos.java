@@ -1,4 +1,4 @@
-package analizadorSintactico.simbolos;
+package analizadorLexico.simbolos;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
