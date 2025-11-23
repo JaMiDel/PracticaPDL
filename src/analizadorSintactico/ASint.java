@@ -56,8 +56,9 @@ public class ASint {
             }
         }
 
-        // FILA: p (programa) -> Regla 1: p -> lUds EOF
-        // Columnas: LET, FUNCTION, IF, SWITCH, BREAK, RETURN, READ, WRITE, ID, EOF
+        // -----------------------------------------------------------
+        // REGLA 1: p -> lUds EOF
+        // -----------------------------------------------------------
         tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.LET.ordinal()] = 1;
         tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.FUNCTION.ordinal()] = 1;
         tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.IF.ordinal()] = 1;
@@ -68,48 +69,351 @@ public class ASint {
         tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.WRITE.ordinal()] = 1;
         tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.IDENTIFICADOR.ordinal()] = 1;
         tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.EOF.ordinal()] = 1;
+        tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.VOID.ordinal()] = 1;
 
-        // FILA: lUds (lista_unidades) -> Regla 2 (Recursiva) o 3 (Lambda)
-        // Regla 2: lUds -> ud lUds
-        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.BREAK.ordinal()] = 2;
-        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.FUNCTION.ordinal()] = 2;
+        // -----------------------------------------------------------
+        // REGLA 2: lUds -> ud lUds (Recursiva)
+        // -----------------------------------------------------------
         tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.LET.ordinal()] = 2;
+        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.FUNCTION.ordinal()] = 2;
         tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.IF.ordinal()] = 2;
-        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.READ.ordinal()] = 2;
-        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.RETURN.ordinal()] = 2;
         tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.SWITCH.ordinal()] = 2;
-        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.VOID.ordinal()] = 2;
+        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.BREAK.ordinal()] = 2;
+        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.RETURN.ordinal()] = 2;
+        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.READ.ordinal()] = 2;
         tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.WRITE.ordinal()] = 2;
         tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.IDENTIFICADOR.ordinal()] = 2;
-        
-        // Regla 3: lUds -> lambda (En EOF y LLAVEDER)
+        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.VOID.ordinal()] = 2;
+
+        // -----------------------------------------------------------
+        // REGLA 3: lUds -> lambda (En EOF y })
+        // -----------------------------------------------------------
         tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.EOF.ordinal()] = 3;
         tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.LLAVEDER.ordinal()] = 3;
 
-        // FILA: ud (unidad)
-        // Regla 4: ud -> dVar (Con LET)
+        // -----------------------------------------------------------
+        // REGLA 4, 5, 6: ud -> dVar | dFunc | s
+        // -----------------------------------------------------------
+        // Regla 4: ud -> dVar
         tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.LET.ordinal()] = 4;
-        // Regla 5: ud -> dFunc (Con FUNCTION)
+        // Regla 5: ud -> dFunc
         tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.FUNCTION.ordinal()] = 5;
-        // Regla 6: ud -> s (Con el resto: IF, SWITCH, ID...)
-        tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.BREAK.ordinal()] = 6;
+        // Regla 6: ud -> s
         tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.IF.ordinal()] = 6;
-        tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.READ.ordinal()] = 6;
-        tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.RETURN.ordinal()] = 6;
         tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.SWITCH.ordinal()] = 6;
+        tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.BREAK.ordinal()] = 6;
+        tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.RETURN.ordinal()] = 6;
+        tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.READ.ordinal()] = 6;
         tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.WRITE.ordinal()] = 6;
         tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.IDENTIFICADOR.ordinal()] = 6;
 
-        // Regla 7: s -> sC
-        tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.SWITCH.ordinal()] = 7;
-        tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.SWITCH.ordinal()] = 7;
-        
+        // -----------------------------------------------------------
+        // REGLA 7, 8: s -> sS | sC
+        // -----------------------------------------------------------
+        // Regla 7: s -> sS (Sentencia Simple)
+        tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.IDENTIFICADOR.ordinal()] = 7;
+        tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.WRITE.ordinal()] = 7;
+        tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.READ.ordinal()] = 7;
+        tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.RETURN.ordinal()] = 7;
+        tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.BREAK.ordinal()] = 7;
+        // Regla 8: s -> sC (Sentencia Compuesta / IF / SWITCH)
+        tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.IF.ordinal()] = 8;
+        tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.SWITCH.ordinal()] = 8;
 
-        // Regla 16: restID -> opA ... (Con =, %=)
+        // -----------------------------------------------------------
+        // REGLAS DE EXPANSIÓN DE sS (Sentencia Simple)
+        // -----------------------------------------------------------
+        // Regla 9: sS -> inicID
+        tablaParsing[NoTerminal.sS.ordinal()][TipoToken.Tipo.IDENTIFICADOR.ordinal()] = 9;
+        // Regla 10: sS -> sW
+        tablaParsing[NoTerminal.sS.ordinal()][TipoToken.Tipo.WRITE.ordinal()] = 10;
+        // Regla 11: sS -> sRd
+        tablaParsing[NoTerminal.sS.ordinal()][TipoToken.Tipo.READ.ordinal()] = 11;
+        // Regla 12: sS -> sRtn
+        tablaParsing[NoTerminal.sS.ordinal()][TipoToken.Tipo.RETURN.ordinal()] = 12;
+        // Regla 13: sS -> sBrk
+        tablaParsing[NoTerminal.sS.ordinal()][TipoToken.Tipo.BREAK.ordinal()] = 13;
+
+        // -----------------------------------------------------------
+        // REGLA 14: sC -> sCndS | sSw
+        // -----------------------------------------------------------
+        // Nota: En tu switch tienes sC -> sSw para SWITCH. 
+        // Falta el IF que va a sCndS. ¿Has actualizado el enum NoTerminal y el switch?
+        // Asumiendo que sC gestiona ambos o que sCndS está separado:
+        tablaParsing[NoTerminal.sC.ordinal()][TipoToken.Tipo.SWITCH.ordinal()] = 14; 
+        // Si tienes regla para IF (sC -> sCndS), añádela aquí o en el switch.
+        // tablaParsing[NoTerminal.sC.ordinal()][TipoToken.Tipo.IF.ordinal()] = XX; 
+
+        // -----------------------------------------------------------
+        // REGLAS DE ID Y ASIGNACIÓN
+        // -----------------------------------------------------------
+        // Regla 15: inicID -> IDENTIFICADOR restID
+        tablaParsing[NoTerminal.inicID.ordinal()][TipoToken.Tipo.IDENTIFICADOR.ordinal()] = 15;
+
+        // Regla 16: restID -> opA ... (Asignación)
         tablaParsing[NoTerminal.restID.ordinal()][TipoToken.Tipo.ASIGNACION.ordinal()] = 16;
         tablaParsing[NoTerminal.restID.ordinal()][TipoToken.Tipo.ASIGNACIONMODULO.ordinal()] = 16;
-        // Regla 17: restID -> ( ... (Con '(')
+
+        // Regla 17: restID -> ( ... (Llamada función)
         tablaParsing[NoTerminal.restID.ordinal()][TipoToken.Tipo.PARENTESISIZQ.ordinal()] = 17;
+
+        // Regla 18, 19: opA
+        tablaParsing[NoTerminal.opA.ordinal()][TipoToken.Tipo.ASIGNACION.ordinal()] = 18;
+        tablaParsing[NoTerminal.opA.ordinal()][TipoToken.Tipo.ASIGNACIONMODULO.ordinal()] = 19;
+
+        // -----------------------------------------------------------
+        // REGLAS DE SENTENCIAS ESPECÍFICAS
+        // -----------------------------------------------------------
+        // Regla 20: sW -> WRITE...
+        tablaParsing[NoTerminal.sW.ordinal()][TipoToken.Tipo.WRITE.ordinal()] = 20;
+
+        // Regla 21: sRd -> READ...
+        tablaParsing[NoTerminal.sRd.ordinal()][TipoToken.Tipo.READ.ordinal()] = 21;
+
+        // Regla 22: sRtn -> RETURN...
+        tablaParsing[NoTerminal.sRtn.ordinal()][TipoToken.Tipo.RETURN.ordinal()] = 22;
+
+        // Regla 23: sRtn_p -> e (Inicio de expresión)
+        tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.PARENTESISIZQ.ordinal()] = 23;
+        tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.SUMA.ordinal()] = 23;
+        tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.CONSTANTE_ENTERA.ordinal()] = 23;
+        tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.CONSTANTE_REAL.ordinal()] = 23;
+        tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.CADENA.ordinal()] = 23;
+        tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.IDENTIFICADOR.ordinal()] = 23;
+        // Añade aquí todos los inicios de expresión (NOT, etc.)
+
+        // Regla 24: sRtn_p -> lambda
+        tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.PUNTOYCOMA.ordinal()] = 24;
+
+        // Regla 25: sBrk -> BREAK...
+        tablaParsing[NoTerminal.sBrk.ordinal()][TipoToken.Tipo.BREAK.ordinal()] = 25;
+
+        // -----------------------------------------------------------
+        // REGLAS DE CONTROL (IF / SWITCH)
+        // -----------------------------------------------------------
+        // Regla 26: sCndS -> IF...
+        tablaParsing[NoTerminal.sCndS.ordinal()][TipoToken.Tipo.IF.ordinal()] = 26;
+
+        // Regla 27: sSw -> SWITCH...
+        tablaParsing[NoTerminal.sSw.ordinal()][TipoToken.Tipo.SWITCH.ordinal()] = 27;
+
+        // Regla 28: cSw -> lC dfltOpc
+        // Inicios de lC (CASE) y dfltOpc (DEFAULT) y lambda (})
+        tablaParsing[NoTerminal.cSw.ordinal()][TipoToken.Tipo.CASE.ordinal()] = 28;
+        tablaParsing[NoTerminal.cSw.ordinal()][TipoToken.Tipo.DEFAULT.ordinal()] = 28;
+        tablaParsing[NoTerminal.cSw.ordinal()][TipoToken.Tipo.LLAVEDER.ordinal()] = 28;
+
+        // Regla 29: lC -> cC lC
+        tablaParsing[NoTerminal.lC.ordinal()][TipoToken.Tipo.CASE.ordinal()] = 29;
+
+        // Regla 30: lC -> lambda
+        tablaParsing[NoTerminal.lC.ordinal()][TipoToken.Tipo.DEFAULT.ordinal()] = 30;
+        tablaParsing[NoTerminal.lC.ordinal()][TipoToken.Tipo.LLAVEDER.ordinal()] = 30;
+
+        // Regla 31: cC -> CASE...
+        tablaParsing[NoTerminal.cC.ordinal()][TipoToken.Tipo.CASE.ordinal()] = 31;
+
+        // Regla 32: bSSw -> s bSSw
+        tablaParsing[NoTerminal.bSSw.ordinal()][TipoToken.Tipo.IF.ordinal()] = 32;
+        tablaParsing[NoTerminal.bSSw.ordinal()][TipoToken.Tipo.SWITCH.ordinal()] = 32;
+        tablaParsing[NoTerminal.bSSw.ordinal()][TipoToken.Tipo.BREAK.ordinal()] = 32;
+        tablaParsing[NoTerminal.bSSw.ordinal()][TipoToken.Tipo.RETURN.ordinal()] = 32;
+        tablaParsing[NoTerminal.bSSw.ordinal()][TipoToken.Tipo.READ.ordinal()] = 32;
+        tablaParsing[NoTerminal.bSSw.ordinal()][TipoToken.Tipo.WRITE.ordinal()] = 32;
+        tablaParsing[NoTerminal.bSSw.ordinal()][TipoToken.Tipo.IDENTIFICADOR.ordinal()] = 32;
+
+        // Regla 33: bSSw -> lambda
+        tablaParsing[NoTerminal.bSSw.ordinal()][TipoToken.Tipo.CASE.ordinal()] = 33;
+        tablaParsing[NoTerminal.bSSw.ordinal()][TipoToken.Tipo.DEFAULT.ordinal()] = 33;
+        tablaParsing[NoTerminal.bSSw.ordinal()][TipoToken.Tipo.LLAVEDER.ordinal()] = 33;
+
+        // Regla 34: dfltOpc -> DEFAULT...
+        tablaParsing[NoTerminal.dfltOpc.ordinal()][TipoToken.Tipo.DEFAULT.ordinal()] = 34;
+
+        // Regla 35: dfltOpc -> lambda
+        tablaParsing[NoTerminal.dfltOpc.ordinal()][TipoToken.Tipo.LLAVEDER.ordinal()] = 35;
+
+        // -----------------------------------------------------------
+        // REGLAS DE DECLARACIONES
+        // -----------------------------------------------------------
+        // Regla 36: dVar -> LET...
+        tablaParsing[NoTerminal.dVar.ordinal()][TipoToken.Tipo.LET.ordinal()] = 36;
+
+        // Regla 37-40: Tipos
+        tablaParsing[NoTerminal.tp.ordinal()][TipoToken.Tipo.INT.ordinal()] = 37;
+        tablaParsing[NoTerminal.tp.ordinal()][TipoToken.Tipo.FLOAT.ordinal()] = 38;
+        tablaParsing[NoTerminal.tp.ordinal()][TipoToken.Tipo.BOOLEAN.ordinal()] = 39;
+        tablaParsing[NoTerminal.tp.ordinal()][TipoToken.Tipo.STRING.ordinal()] = 40;
+
+        // Regla 41: dFunc -> FUNCTION...
+        tablaParsing[NoTerminal.dFunc.ordinal()][TipoToken.Tipo.FUNCTION.ordinal()] = 41;
+
+        // Regla 42, 43: tpRtn
+        tablaParsing[NoTerminal.tpRtn.ordinal()][TipoToken.Tipo.INT.ordinal()] = 42;
+        tablaParsing[NoTerminal.tpRtn.ordinal()][TipoToken.Tipo.FLOAT.ordinal()] = 42;
+        tablaParsing[NoTerminal.tpRtn.ordinal()][TipoToken.Tipo.BOOLEAN.ordinal()] = 42;
+        tablaParsing[NoTerminal.tpRtn.ordinal()][TipoToken.Tipo.STRING.ordinal()] = 42;
+        tablaParsing[NoTerminal.tpRtn.ordinal()][TipoToken.Tipo.VOID.ordinal()] = 43;
+
+        // Regla 44: lPmts -> lPmtsR (Tipos)
+        tablaParsing[NoTerminal.lPmts.ordinal()][TipoToken.Tipo.INT.ordinal()] = 44;
+        tablaParsing[NoTerminal.lPmts.ordinal()][TipoToken.Tipo.FLOAT.ordinal()] = 44;
+        tablaParsing[NoTerminal.lPmts.ordinal()][TipoToken.Tipo.BOOLEAN.ordinal()] = 44;
+        tablaParsing[NoTerminal.lPmts.ordinal()][TipoToken.Tipo.STRING.ordinal()] = 44;
+
+        // Regla 45: lPmts -> lambda
+        tablaParsing[NoTerminal.lPmts.ordinal()][TipoToken.Tipo.PARENTESISDER.ordinal()] = 45;
+
+        // Regla 46: lPmtsR -> pmt mPmts
+        tablaParsing[NoTerminal.lPmtsR.ordinal()][TipoToken.Tipo.INT.ordinal()] = 46;
+        tablaParsing[NoTerminal.lPmtsR.ordinal()][TipoToken.Tipo.FLOAT.ordinal()] = 46;
+        tablaParsing[NoTerminal.lPmtsR.ordinal()][TipoToken.Tipo.BOOLEAN.ordinal()] = 46;
+        tablaParsing[NoTerminal.lPmtsR.ordinal()][TipoToken.Tipo.STRING.ordinal()] = 46;
+
+        // Regla 47: mPmts -> COMA...
+        tablaParsing[NoTerminal.mPmts.ordinal()][TipoToken.Tipo.COMA.ordinal()] = 47;
+
+        // Regla 48: pmt -> tipo ID
+        tablaParsing[NoTerminal.pmt.ordinal()][TipoToken.Tipo.INT.ordinal()] = 48;
+        tablaParsing[NoTerminal.pmt.ordinal()][TipoToken.Tipo.FLOAT.ordinal()] = 48;
+        tablaParsing[NoTerminal.pmt.ordinal()][TipoToken.Tipo.BOOLEAN.ordinal()] = 48;
+        tablaParsing[NoTerminal.pmt.ordinal()][TipoToken.Tipo.STRING.ordinal()] = 48;
+
+        // Regla 80 (Salto temporal por error en tu switch): mPmts -> lambda
+        tablaParsing[NoTerminal.mPmts.ordinal()][TipoToken.Tipo.PARENTESISDER.ordinal()] = 80;
+
+        // -----------------------------------------------------------
+        // REGLAS DE EXPRESIONES (CASCADA)
+        // -----------------------------------------------------------
+        // Tokens que inician expresión: (, SUMA, CTEs, CADENA, ID
+        int[] iniciosExpresion = {
+            TipoToken.Tipo.PARENTESISIZQ.ordinal(),
+            TipoToken.Tipo.SUMA.ordinal(),
+            TipoToken.Tipo.CONSTANTE_ENTERA.ordinal(),
+            TipoToken.Tipo.CONSTANTE_REAL.ordinal(),
+            TipoToken.Tipo.CADENA.ordinal(),
+            TipoToken.Tipo.IDENTIFICADOR.ordinal()
+        };
+
+        // Regla 49: e -> eAnd
+        for(int t : iniciosExpresion) tablaParsing[NoTerminal.e.ordinal()][t] = 49;
+
+        // Regla 50: eAnd -> eRel eAnd_p
+        for(int t : iniciosExpresion) tablaParsing[NoTerminal.eAnd.ordinal()][t] = 50;
+
+        // Regla 51: eAnd_p -> AND...
+        tablaParsing[NoTerminal.eAnd_p.ordinal()][TipoToken.Tipo.AND.ordinal()] = 51;
+
+        // Regla 52: eAnd_p -> lambda
+        tablaParsing[NoTerminal.eAnd_p.ordinal()][TipoToken.Tipo.PARENTESISDER.ordinal()] = 52;
+        tablaParsing[NoTerminal.eAnd_p.ordinal()][TipoToken.Tipo.PUNTOYCOMA.ordinal()] = 52;
+        tablaParsing[NoTerminal.eAnd_p.ordinal()][TipoToken.Tipo.COMA.ordinal()] = 52;
+
+        // Regla 53: eRel -> eCmp eRel_p
+        for(int t : iniciosExpresion) tablaParsing[NoTerminal.eRel.ordinal()][t] = 53;
+
+        // Regla 54: eRel_p -> IGUAL...
+        tablaParsing[NoTerminal.eRel_p.ordinal()][TipoToken.Tipo.IGUAL.ordinal()] = 54;
+
+        // Regla 55: eRel_p -> lambda
+        tablaParsing[NoTerminal.eRel_p.ordinal()][TipoToken.Tipo.AND.ordinal()] = 55;
+        tablaParsing[NoTerminal.eRel_p.ordinal()][TipoToken.Tipo.PARENTESISDER.ordinal()] = 55;
+        tablaParsing[NoTerminal.eRel_p.ordinal()][TipoToken.Tipo.PUNTOYCOMA.ordinal()] = 55;
+        tablaParsing[NoTerminal.eRel_p.ordinal()][TipoToken.Tipo.COMA.ordinal()] = 55;
+
+        // Regla 56: eCmp -> eArit eCmp_p
+        for(int t : iniciosExpresion) tablaParsing[NoTerminal.eCmp.ordinal()][t] = 56;
+
+        // Regla 57: eCmp_p -> MENORIGUAL...
+        tablaParsing[NoTerminal.eCmp_p.ordinal()][TipoToken.Tipo.MENORIGUAL.ordinal()] = 57;
+
+        // Regla 58: eCmp_p -> lambda
+        tablaParsing[NoTerminal.eCmp_p.ordinal()][TipoToken.Tipo.IGUAL.ordinal()] = 58;
+        tablaParsing[NoTerminal.eCmp_p.ordinal()][TipoToken.Tipo.AND.ordinal()] = 58;
+        tablaParsing[NoTerminal.eCmp_p.ordinal()][TipoToken.Tipo.PARENTESISDER.ordinal()] = 58;
+        tablaParsing[NoTerminal.eCmp_p.ordinal()][TipoToken.Tipo.PUNTOYCOMA.ordinal()] = 58;
+        tablaParsing[NoTerminal.eCmp_p.ordinal()][TipoToken.Tipo.COMA.ordinal()] = 58;
+
+        // Regla 59: eArit -> trm eArit_p
+        for(int t : iniciosExpresion) tablaParsing[NoTerminal.eArit.ordinal()][t] = 59;
+
+        // Regla 60: eArit_p -> SUMA...
+        tablaParsing[NoTerminal.eArit_p.ordinal()][TipoToken.Tipo.SUMA.ordinal()] = 60;
+
+        // Regla 61: eArit_p -> lambda
+        tablaParsing[NoTerminal.eArit_p.ordinal()][TipoToken.Tipo.MENORIGUAL.ordinal()] = 61;
+        tablaParsing[NoTerminal.eArit_p.ordinal()][TipoToken.Tipo.IGUAL.ordinal()] = 61;
+        tablaParsing[NoTerminal.eArit_p.ordinal()][TipoToken.Tipo.AND.ordinal()] = 61;
+        tablaParsing[NoTerminal.eArit_p.ordinal()][TipoToken.Tipo.PARENTESISDER.ordinal()] = 61;
+        tablaParsing[NoTerminal.eArit_p.ordinal()][TipoToken.Tipo.PUNTOYCOMA.ordinal()] = 61;
+        tablaParsing[NoTerminal.eArit_p.ordinal()][TipoToken.Tipo.COMA.ordinal()] = 61;
+
+        // Regla 62: trm -> fUnr trm_p
+        for(int t : iniciosExpresion) tablaParsing[NoTerminal.trm.ordinal()][t] = 62;
+
+        // Regla 63: trm_p -> opPrd...
+        tablaParsing[NoTerminal.trm_p.ordinal()][TipoToken.Tipo.POR.ordinal()] = 63;
+        tablaParsing[NoTerminal.trm_p.ordinal()][TipoToken.Tipo.ENTRE.ordinal()] = 63;
+
+        // Regla 64: trm_p -> lambda
+        tablaParsing[NoTerminal.trm_p.ordinal()][TipoToken.Tipo.SUMA.ordinal()] = 64;
+        tablaParsing[NoTerminal.trm_p.ordinal()][TipoToken.Tipo.MENORIGUAL.ordinal()] = 64;
+        tablaParsing[NoTerminal.trm_p.ordinal()][TipoToken.Tipo.IGUAL.ordinal()] = 64;
+        tablaParsing[NoTerminal.trm_p.ordinal()][TipoToken.Tipo.AND.ordinal()] = 64;
+        tablaParsing[NoTerminal.trm_p.ordinal()][TipoToken.Tipo.PARENTESISDER.ordinal()] = 64;
+        tablaParsing[NoTerminal.trm_p.ordinal()][TipoToken.Tipo.PUNTOYCOMA.ordinal()] = 64;
+        tablaParsing[NoTerminal.trm_p.ordinal()][TipoToken.Tipo.COMA.ordinal()] = 64;
+
+        // Regla 65, 66: opProd
+        tablaParsing[NoTerminal.opProd.ordinal()][TipoToken.Tipo.POR.ordinal()] = 65;
+        tablaParsing[NoTerminal.opProd.ordinal()][TipoToken.Tipo.ENTRE.ordinal()] = 66;
+
+        // Regla 67: fUnr -> SUMA...
+        tablaParsing[NoTerminal.fUnr.ordinal()][TipoToken.Tipo.SUMA.ordinal()] = 67;
+
+        // Regla 68: fUnr -> f
+        tablaParsing[NoTerminal.fUnr.ordinal()][TipoToken.Tipo.PARENTESISIZQ.ordinal()] = 68;
+        tablaParsing[NoTerminal.fUnr.ordinal()][TipoToken.Tipo.CONSTANTE_ENTERA.ordinal()] = 68;
+        tablaParsing[NoTerminal.fUnr.ordinal()][TipoToken.Tipo.CONSTANTE_REAL.ordinal()] = 68;
+        tablaParsing[NoTerminal.fUnr.ordinal()][TipoToken.Tipo.CADENA.ordinal()] = 68;
+        tablaParsing[NoTerminal.fUnr.ordinal()][TipoToken.Tipo.IDENTIFICADOR.ordinal()] = 68;
+
+        // Regla 69-73: factor (f)
+        tablaParsing[NoTerminal.f.ordinal()][TipoToken.Tipo.CONSTANTE_ENTERA.ordinal()] = 69;
+        tablaParsing[NoTerminal.f.ordinal()][TipoToken.Tipo.CONSTANTE_REAL.ordinal()] = 70;
+        tablaParsing[NoTerminal.f.ordinal()][TipoToken.Tipo.CADENA.ordinal()] = 71;
+        tablaParsing[NoTerminal.f.ordinal()][TipoToken.Tipo.IDENTIFICADOR.ordinal()] = 72;
+        tablaParsing[NoTerminal.f.ordinal()][TipoToken.Tipo.PARENTESISIZQ.ordinal()] = 73;
+
+        // Regla 74: fIDSuf -> ( ...
+        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.PARENTESISIZQ.ordinal()] = 74;
+
+        // Regla 75: fIDSuf -> lambda (Todos los follows de factor)
+        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.POR.ordinal()] = 75;
+        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.ENTRE.ordinal()] = 75;
+        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.SUMA.ordinal()] = 75;
+        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.MENORIGUAL.ordinal()] = 75;
+        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.IGUAL.ordinal()] = 75;
+        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.AND.ordinal()] = 75;
+        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.PARENTESISDER.ordinal()] = 75;
+        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.PUNTOYCOMA.ordinal()] = 75;
+        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.COMA.ordinal()] = 75;
+        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.ASIGNACION.ordinal()] = 75;
+
+        // Regla 76: lArgs -> lExps
+        for(int t : iniciosExpresion) tablaParsing[NoTerminal.lArgs.ordinal()][t] = 76;
+
+        // Regla 77: lArgs -> lambda
+        tablaParsing[NoTerminal.lArgs.ordinal()][TipoToken.Tipo.PARENTESISDER.ordinal()] = 77;
+
+        // Regla 78: lExps -> e...
+        for(int t : iniciosExpresion) tablaParsing[NoTerminal.lExps.ordinal()][t] = 78;
+
+        // Regla 79: mExps -> COMA...
+        tablaParsing[NoTerminal.mExps.ordinal()][TipoToken.Tipo.COMA.ordinal()] = 79;
+
+        // Regla 80: mExps -> lambda (Está duplicado con mPmts en tu switch, cuidado)
+        tablaParsing[NoTerminal.mExps.ordinal()][TipoToken.Tipo.PARENTESISDER.ordinal()] = 80;
     }
 
     public void analizar() throws IOException {
@@ -132,7 +436,7 @@ public class ASint {
             } else if (cima instanceof NoTerminal) {
                 NoTerminal nt = (NoTerminal) cima;
 
-                // AQUI LEEREMOS DE LA TABLA
+                // AQUI LEEREMOS DE LA tablaParsing
                 // int regla = tablaParsing[nt.ordinal()][token.tipo.ordinal()]
 
                 int regla = -1;
