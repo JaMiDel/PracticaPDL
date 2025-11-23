@@ -8,21 +8,45 @@ import java.io.IOException;
 import java.util.Stack;
 
 public class ASint {
+    private final BufferedWriter tokensWriter;
+    private final BufferedWriter errorsWriter;
     private ALex alex;
     private Stack<Object> pila;
     private BufferedWriter parseWriter;
 
-    public ASint(ALex alex, Stack<Object> pila, BufferedWriter parseWriter) {
+    public ASint(ALex alex, Stack<Object> pila, BufferedWriter parseWriter,
+                 BufferedWriter tokensWriter, BufferedWriter errorsWriter) {
         this.alex = alex;
         this.pila = pila;
         this.parseWriter = parseWriter;
+        this.tokensWriter = tokensWriter;
+        this.errorsWriter = errorsWriter;
+    }
+
+    private Token pedirToken() throws IOException {
+        Token token = alex.getNextToken();
+
+
+        if (token.tipo == TipoToken.Tipo.ERROR) {
+            String errorMnsj = "Error Léxico en línea: " + token.linea +
+                    " | " + token.atributo + " (Lexema: '" + token.lexema + "')";
+            errorsWriter.write(errorMnsj);
+            errorsWriter.newLine();
+            System.err.println(errorMnsj);
+        }
+        else {
+            tokensWriter.write(token.toFileString());
+            tokensWriter.newLine();
+        }
+
+        return token;
     }
 
     public void analizar() throws IOException {
         pila.push(TipoToken.Tipo.EOF);
         pila.push(NoTerminal.p);
 
-        Token token = alex.getNextToken();
+        Token token = pedirToken();
 
         while(!pila.isEmpty()) {
             Object cima = pila.peek();
