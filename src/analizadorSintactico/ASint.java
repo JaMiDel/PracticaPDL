@@ -13,6 +13,7 @@ public class ASint {
     private ALex alex;
     private Stack<Object> pila;
     private BufferedWriter parseWriter;
+    private int[][] tablaParsing;
 
     public ASint(ALex alex, Stack<Object> pila, BufferedWriter parseWriter,
                  BufferedWriter tokensWriter, BufferedWriter errorsWriter) {
@@ -21,6 +22,7 @@ public class ASint {
         this.parseWriter = parseWriter;
         this.tokensWriter = tokensWriter;
         this.errorsWriter = errorsWriter;
+        inicializarTabla();
     }
 
     private Token pedirToken() throws IOException {
@@ -40,6 +42,74 @@ public class ASint {
         }
 
         return token;
+    }
+
+    public void inicializarTabla() {
+        int numNoTerminales = NoTerminal.values().length;
+        int numTerminales = TipoToken.Tipo.values().length;
+        
+        tablaParsing = new int[numNoTerminales][numTerminales];
+
+        for (int i = 0; i < numNoTerminales; i++) {
+            for (int j = 0; j < numTerminales; j++) {
+                tablaParsing[i][j] = -1;
+            }
+        }
+
+        // FILA: p (programa) -> Regla 1: p -> lUds EOF
+        // Columnas: LET, FUNCTION, IF, SWITCH, BREAK, RETURN, READ, WRITE, ID, EOF
+        tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.LET.ordinal()] = 1;
+        tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.FUNCTION.ordinal()] = 1;
+        tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.IF.ordinal()] = 1;
+        tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.SWITCH.ordinal()] = 1;
+        tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.BREAK.ordinal()] = 1;
+        tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.RETURN.ordinal()] = 1;
+        tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.READ.ordinal()] = 1;
+        tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.WRITE.ordinal()] = 1;
+        tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.IDENTIFICADOR.ordinal()] = 1;
+        tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.EOF.ordinal()] = 1;
+
+        // FILA: lUds (lista_unidades) -> Regla 2 (Recursiva) o 3 (Lambda)
+        // Regla 2: lUds -> ud lUds
+        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.BREAK.ordinal()] = 2;
+        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.FUNCTION.ordinal()] = 2;
+        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.LET.ordinal()] = 2;
+        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.IF.ordinal()] = 2;
+        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.READ.ordinal()] = 2;
+        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.RETURN.ordinal()] = 2;
+        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.SWITCH.ordinal()] = 2;
+        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.VOID.ordinal()] = 2;
+        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.WRITE.ordinal()] = 2;
+        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.IDENTIFICADOR.ordinal()] = 2;
+        
+        // Regla 3: lUds -> lambda (En EOF y LLAVEDER)
+        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.EOF.ordinal()] = 3;
+        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.LLAVEDER.ordinal()] = 3;
+
+        // FILA: ud (unidad)
+        // Regla 4: ud -> dVar (Con LET)
+        tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.LET.ordinal()] = 4;
+        // Regla 5: ud -> dFunc (Con FUNCTION)
+        tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.FUNCTION.ordinal()] = 5;
+        // Regla 6: ud -> s (Con el resto: IF, SWITCH, ID...)
+        tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.BREAK.ordinal()] = 6;
+        tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.IF.ordinal()] = 6;
+        tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.READ.ordinal()] = 6;
+        tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.RETURN.ordinal()] = 6;
+        tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.SWITCH.ordinal()] = 6;
+        tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.WRITE.ordinal()] = 6;
+        tablaParsing[NoTerminal.ud.ordinal()][TipoToken.Tipo.IDENTIFICADOR.ordinal()] = 6;
+
+        // Regla 7: s -> sC
+        tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.SWITCH.ordinal()] = 7;
+        tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.SWITCH.ordinal()] = 7;
+        
+
+        // Regla 16: restID -> opA ... (Con =, %=)
+        tablaParsing[NoTerminal.restID.ordinal()][TipoToken.Tipo.ASIGNACION.ordinal()] = 16;
+        tablaParsing[NoTerminal.restID.ordinal()][TipoToken.Tipo.ASIGNACIONMODULO.ordinal()] = 16;
+        // Regla 17: restID -> ( ... (Con '(')
+        tablaParsing[NoTerminal.restID.ordinal()][TipoToken.Tipo.PARENTESISIZQ.ordinal()] = 17;
     }
 
     public void analizar() throws IOException {
@@ -87,7 +157,7 @@ public class ASint {
                 pila.push(TipoToken.Tipo.EOF);
                 pila.push(NoTerminal.lUds);
                 break;
-            case 2: // lUds → ud lUds | lambda
+            case 2: // lUds → ud lUds
                 pila.push(NoTerminal.lUds);
                 pila.push(NoTerminal.ud);
                 break;
