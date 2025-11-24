@@ -176,6 +176,11 @@ public class ASint {
 
         // Regla 23: sRtn_p -> e (Inicio de expresión)
         tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.PARENTESISIZQ.ordinal()] = 23;
+        tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.IDENTIFICADOR.ordinal()] = 23;
+        tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.CONSTANTE_ENTERA.ordinal()] = 23;
+        tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.CONSTANTE_REAL.ordinal()] = 23;
+        tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.CADENA.ordinal()] = 23;
+        tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.SUMA.ordinal()] = 23;
 
         // Regla 24: sRtn_p -> lambda
         tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.PUNTOYCOMA.ordinal()] = 24;
@@ -383,16 +388,25 @@ public class ASint {
         tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.PARENTESISIZQ.ordinal()] = 74;
 
         // Regla 75: fIDSuf -> lambda (Todos los follows de factor)
-        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.POR.ordinal()] = 75;
-        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.ENTRE.ordinal()] = 75;
-        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.SUMA.ordinal()] = 75;
-        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.MENORIGUAL.ordinal()] = 75;
-        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.IGUAL.ordinal()] = 75;
-        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.AND.ordinal()] = 75;
-        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.PARENTESISDER.ordinal()] = 75;
-        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.PUNTOYCOMA.ordinal()] = 75;
-        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.COMA.ordinal()] = 75;
-        tablaParsing[NoTerminal.fIDSuf.ordinal()][TipoToken.Tipo.ASIGNACION.ordinal()] = 75;
+        int[] followersFactor = {
+                TipoToken.Tipo.POR.ordinal(),
+                TipoToken.Tipo.ENTRE.ordinal(),
+                TipoToken.Tipo.SUMA.ordinal(),
+                TipoToken.Tipo.MENORIGUAL.ordinal(),
+                TipoToken.Tipo.IGUAL.ordinal(),
+                TipoToken.Tipo.AND.ordinal(),
+                TipoToken.Tipo.PARENTESISDER.ordinal(),
+                TipoToken.Tipo.PUNTOYCOMA.ordinal(),
+                TipoToken.Tipo.COMA.ordinal(),
+                TipoToken.Tipo.ASIGNACION.ordinal(),
+                TipoToken.Tipo.ASIGNACIONMODULO.ordinal(),
+                TipoToken.Tipo.LLAVEDER.ordinal(), // Por si acaso
+                TipoToken.Tipo.EOF.ordinal()        // Por si acaso
+        };
+
+        for (int t : followersFactor) {
+            tablaParsing[NoTerminal.fIDSuf.ordinal()][t] = 75;
+        }
 
         // Regla 76: lArgs -> lExps
         for(int t : iniciosExpresion) tablaParsing[NoTerminal.lArgs.ordinal()][t] = 76;
@@ -411,6 +425,9 @@ public class ASint {
 
         // Regla 81: mPmts -> lambda
         tablaParsing[NoTerminal.mPmts.ordinal()][TipoToken.Tipo.PARENTESISDER.ordinal()] = 81;
+
+        // Regla 82: sC -> sCndS
+        tablaParsing[NoTerminal.sC.ordinal()][TipoToken.Tipo.IF.ordinal()] = 82;
     }
 
     public void analizar() throws IOException {
@@ -759,6 +776,9 @@ public class ASint {
             case 80: // mExps → lambda
                 break;
             case 81: // mPmts → lambda
+                break;
+            case 82: // sC -> sCndS
+                pila.push(NoTerminal.sCndS);
                 break;
         }
     }
