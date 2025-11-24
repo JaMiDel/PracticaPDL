@@ -69,7 +69,6 @@ public class ASint {
         tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.WRITE.ordinal()] = 1;
         tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.IDENTIFICADOR.ordinal()] = 1;
         tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.EOF.ordinal()] = 1;
-        tablaParsing[NoTerminal.p.ordinal()][TipoToken.Tipo.VOID.ordinal()] = 1;
 
         // -----------------------------------------------------------
         // REGLA 2: lUds -> ud lUds (Recursiva)
@@ -83,7 +82,6 @@ public class ASint {
         tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.READ.ordinal()] = 2;
         tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.WRITE.ordinal()] = 2;
         tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.IDENTIFICADOR.ordinal()] = 2;
-        tablaParsing[NoTerminal.lUds.ordinal()][TipoToken.Tipo.VOID.ordinal()] = 2;
 
         // -----------------------------------------------------------
         // REGLA 3: lUds -> lambda (En EOF y })
@@ -112,12 +110,10 @@ public class ASint {
         // -----------------------------------------------------------
         // Regla 7: s -> sS (Sentencia Simple)
         tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.IDENTIFICADOR.ordinal()] = 7;
-        tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.WRITE.ordinal()] = 7;
         tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.READ.ordinal()] = 7;
         tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.RETURN.ordinal()] = 7;
         tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.BREAK.ordinal()] = 7;
-        // Regla 8: s -> sC (Sentencia Compuesta / IF / SWITCH)
-        tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.IF.ordinal()] = 8;
+        // Regla 8: s -> sC (Sentencia Compuesta / SWITCH)
         tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.SWITCH.ordinal()] = 8;
 
         // -----------------------------------------------------------
@@ -135,14 +131,9 @@ public class ASint {
         tablaParsing[NoTerminal.sS.ordinal()][TipoToken.Tipo.BREAK.ordinal()] = 13;
 
         // -----------------------------------------------------------
-        // REGLA 14: sC -> sCndS | sSw
+        // REGLA 14: sC -> sSw
         // -----------------------------------------------------------
-        // Nota: En tu switch tienes sC -> sSw para SWITCH. 
-        // Falta el IF que va a sCndS. ¿Has actualizado el enum NoTerminal y el switch?
-        // Asumiendo que sC gestiona ambos o que sCndS está separado:
-        tablaParsing[NoTerminal.sC.ordinal()][TipoToken.Tipo.SWITCH.ordinal()] = 14; 
-        // Si tienes regla para IF (sC -> sCndS), añádela aquí o en el switch.
-        // tablaParsing[NoTerminal.sC.ordinal()][TipoToken.Tipo.IF.ordinal()] = XX; 
+        tablaParsing[NoTerminal.sC.ordinal()][TipoToken.Tipo.SWITCH.ordinal()] = 14;
 
         // -----------------------------------------------------------
         // REGLAS DE ID Y ASIGNACIÓN
@@ -175,12 +166,6 @@ public class ASint {
 
         // Regla 23: sRtn_p -> e (Inicio de expresión)
         tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.PARENTESISIZQ.ordinal()] = 23;
-        tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.SUMA.ordinal()] = 23;
-        tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.CONSTANTE_ENTERA.ordinal()] = 23;
-        tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.CONSTANTE_REAL.ordinal()] = 23;
-        tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.CADENA.ordinal()] = 23;
-        tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.IDENTIFICADOR.ordinal()] = 23;
-        // Añade aquí todos los inicios de expresión (NOT, etc.)
 
         // Regla 24: sRtn_p -> lambda
         tablaParsing[NoTerminal.sRtn_p.ordinal()][TipoToken.Tipo.PUNTOYCOMA.ordinal()] = 24;
@@ -198,7 +183,6 @@ public class ASint {
         tablaParsing[NoTerminal.sSw.ordinal()][TipoToken.Tipo.SWITCH.ordinal()] = 27;
 
         // Regla 28: cSw -> lC dfltOpc
-        // Inicios de lC (CASE) y dfltOpc (DEFAULT) y lambda (})
         tablaParsing[NoTerminal.cSw.ordinal()][TipoToken.Tipo.CASE.ordinal()] = 28;
         tablaParsing[NoTerminal.cSw.ordinal()][TipoToken.Tipo.DEFAULT.ordinal()] = 28;
         tablaParsing[NoTerminal.cSw.ordinal()][TipoToken.Tipo.LLAVEDER.ordinal()] = 28;
@@ -412,8 +396,11 @@ public class ASint {
         // Regla 79: mExps -> COMA...
         tablaParsing[NoTerminal.mExps.ordinal()][TipoToken.Tipo.COMA.ordinal()] = 79;
 
-        // Regla 80: mExps -> lambda (Está duplicado con mPmts en tu switch, cuidado)
+        // Regla 80: mExps -> lambda
         tablaParsing[NoTerminal.mExps.ordinal()][TipoToken.Tipo.PARENTESISDER.ordinal()] = 80;
+
+        // Regla 81: mPmts -> lambda
+        tablaParsing[NoTerminal.mPmts.ordinal()][TipoToken.Tipo.PARENTESISDER.ordinal()] = 81;
     }
 
     public void analizar() throws IOException {
@@ -755,6 +742,8 @@ public class ASint {
                 pila.push(TipoToken.Tipo.COMA);
                 break;
             case 80: // mExps → lambda
+                break;
+            case 81: // mPmts → lambda
                 break;
         }
     }
