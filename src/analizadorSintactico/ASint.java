@@ -442,9 +442,12 @@ public class ASint {
             if(cima instanceof TipoToken.Tipo) {
                 if(cima == token.tipo){
                     pila.pop();
-                    if(cima != TipoToken.Tipo.EOF) token = alex.getNextToken();
+                    if(cima != TipoToken.Tipo.EOF) token = pedirToken();
                 } else {
-                    System.err.println("Error sintáctico: Se esperaba " + cima + ", encontrado " + token.lexema);
+                    String msgError = "Error sintáctico: Se esperaba " + cima + ", encontrado '" + token.lexema + "'";
+                    System.err.println(msgError);
+                    errorsWriter.write(msgError);
+                    errorsWriter.newLine();
                     return;
                 }
             } else if (cima instanceof NoTerminal) {
