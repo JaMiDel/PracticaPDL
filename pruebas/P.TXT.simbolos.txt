@@ -1,3 +1,0 @@
-TABLA PRINCIPAL # 1 :
-* 'opcion'
-* 'mensaje'

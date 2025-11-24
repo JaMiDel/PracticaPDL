@@ -1,2 +1,0 @@
-let cad = 'Esta es una cadena
-rota';

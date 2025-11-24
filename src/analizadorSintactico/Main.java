@@ -1,4 +1,4 @@
-package analizadorSintactico; // OJO: Ahora el Main suele estar en el paquete padre o sintactico
+package analizadorSintactico;
 
 import analizadorLexico.ALex;
 import analizadorLexico.simbolos.TablaSimbolos;
@@ -14,49 +14,44 @@ public class Main {
             return;
         }
 
-        // 1. Definición de ficheros de salida
-        String ficheroErrores = args[0] + ".errores.txt";
-        String ficheroTokens = args[0] + ".tokens.txt";
-        String ficheroSimbolos = args[0] + ".simbolos.txt";
-        String ficheroParse = args[0] + ".parse.txt"; // ¡NUEVO!
+        String ficheroFuente = args[0];
+        String ficheroErrores = ficheroFuente + ".errores.txt";
+        String ficheroTokens = ficheroFuente + ".tokens.txt";
+        String ficheroSimbolos = ficheroFuente + ".simbolos.txt";
+        String ficheroParse = ficheroFuente + ".parse.txt"; // ¡Nuevo fichero!
 
         TablaSimbolos tablaSimbolos = new TablaSimbolos();
-        ALex aLex;
-        ASint aSint;
 
-        // 2. Abrimos TODOS los flujos de escritura
-        try (BufferedWriter tokensWriter = new BufferedWriter(new FileWriter(ficheroTokens));
-             BufferedWriter errorsWriter = new BufferedWriter(new FileWriter(ficheroErrores));
-             BufferedWriter parseWriter = new BufferedWriter(new FileWriter(ficheroParse))) {
+        try (
+                BufferedWriter tokensWriter = new BufferedWriter(new FileWriter(ficheroTokens));
+                BufferedWriter errorsWriter = new BufferedWriter(new FileWriter(ficheroErrores));
+                BufferedWriter parseWriter = new BufferedWriter(new FileWriter(ficheroParse))
+        ) {
+            // 1. Crear Léxico
+            ALex aLex = new ALex(tablaSimbolos, ficheroFuente);
 
-            // 3. Inicialización de componentes
-            aLex = new ALex(tablaSimbolos, args[0]);
+            // 2. Crear Pila
             Stack<Object> pila = new Stack<>();
 
-            // 4. Inicializamos el ASint pasándole TODOS los writers que necesita
-            // (Necesita tokensWriter y errorsWriter porque ahora EL es quien pide los tokens)
-            aSint = new ASint(aLex, pila, parseWriter, tokensWriter, errorsWriter);
+            // 3. Crear Sintáctico (Conectamos todo)
+            ASint aSint = new ASint(aLex, pila, parseWriter, tokensWriter, errorsWriter);
 
+            // 4. ¡EJECUTAR EL ANÁLISIS!
             System.out.println("Iniciando Análisis Sintáctico...");
-
-            // 5. Cedemos el control al Analizador Sintáctico
             aSint.analizar();
-
             System.out.println("Análisis finalizado.");
-            System.out.println("Generados: tokens, parse y errores (si los hay).");
 
         } catch (IOException e) {
-            System.err.println("Error crítico de E/S: " + e.getMessage());
+            System.err.println("Error grave de E/S: " + e.getMessage());
             e.printStackTrace();
-            return;
         }
 
-        // 6. Volcado final de la Tabla de Símbolos (siempre al final)
+        // 5. Volcar Tabla de Símbolos al final
         try {
             tablaSimbolos.volcarAFichero(ficheroSimbolos);
-            System.out.println("Tabla de símbolos volcada en -> '" + ficheroSimbolos + "'");
+            System.out.println("Tabla de símbolos generada.");
         } catch (IOException e) {
-            System.err.println("Error al volcar la tabla de símbolos: " + e.getMessage());
+            System.err.println("Error volcando tabla de símbolos: " + e.getMessage());
         }
     }
 }

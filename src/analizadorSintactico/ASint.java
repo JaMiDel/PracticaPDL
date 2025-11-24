@@ -22,6 +22,14 @@ public class ASint {
         this.parseWriter = parseWriter;
         this.tokensWriter = tokensWriter;
         this.errorsWriter = errorsWriter;
+
+        try {
+            parseWriter.write("Descendente");
+            parseWriter.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         inicializarTabla();
     }
 
@@ -113,8 +121,10 @@ public class ASint {
         tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.READ.ordinal()] = 7;
         tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.RETURN.ordinal()] = 7;
         tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.BREAK.ordinal()] = 7;
+        tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.WRITE.ordinal()] = 7;
         // Regla 8: s -> sC (Sentencia Compuesta / SWITCH)
         tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.SWITCH.ordinal()] = 8;
+        tablaParsing[NoTerminal.s.ordinal()][TipoToken.Tipo.IF.ordinal()] = 8;
 
         // -----------------------------------------------------------
         // REGLAS DE EXPANSIÓN DE sS (Sentencia Simple)
@@ -424,16 +434,21 @@ public class ASint {
                 NoTerminal nt = (NoTerminal) cima;
 
                 // AQUI LEEREMOS DE LA tablaParsing
-                // int regla = tablaParsing[nt.ordinal()][token.tipo.ordinal()]
-
-                int regla = -1;
+                int regla = tablaParsing[nt.ordinal()][token.tipo.ordinal()];
 
                 if (regla == -1){
-                    System.err.println("Error sintáctico en regla para: " + nt);
+                    String msgError = "Error sintáctico en regla para: " + nt + ", se encontró: " + token.lexema;
+                    System.err.println(msgError);
+                    try {
+                        errorsWriter.write(msgError);
+                        errorsWriter.newLine();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     return;
                 }
 
-                parseWriter.write("Descendente " + regla);
+                parseWriter.write(" " + regla);
                 parseWriter.newLine();
 
                 pila.pop();
