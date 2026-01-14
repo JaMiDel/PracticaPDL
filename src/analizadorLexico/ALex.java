@@ -1,5 +1,6 @@
 package analizadorLexico;
 
+import analizadorLexico.simbolos.GestorTablas;
 import analizadorLexico.simbolos.Simbolo;
 import analizadorLexico.simbolos.TablaSimbolos;
 import analizadorLexico.tokens.TipoToken;
@@ -17,7 +18,7 @@ public class ALex {
     private int linea;
     private int nextChar;
 
-    private final TablaSimbolos tablaSimbolos;
+    private final GestorTablas gestorTablas;
     private static final Map<String, TipoToken.Tipo> palabrasReservadas;
 
     static {
@@ -39,9 +40,9 @@ public class ALex {
         palabrasReservadas.put("write", TipoToken.Tipo.WRITE);
     }
 
-    public ALex(TablaSimbolos tablaSimbolos, String filePath) throws FileNotFoundException {
+    public ALex(GestorTablas gestorTablas, String filePath) throws FileNotFoundException {
         this.reader = new BufferedReader(new FileReader(filePath));
-        this.tablaSimbolos = tablaSimbolos;
+        this.gestorTablas = gestorTablas;
         this.linea = 1;
         this.nextChar = -1;
     }
@@ -150,8 +151,16 @@ public class ALex {
                         if(palabrasReservadas.containsKey(lexemaFinal)){
                             return new Token(palabrasReservadas.get(lexemaFinal), lexemaFinal, null, linea);
                         } else {
-                            Simbolo s = tablaSimbolos.findOrInsert(lexemaFinal);
+                            // --- LÓGICA CON GESTOR DE TABLAS ---
+                            // 1. Buscamos si ya existe (visible desde este ámbito)
+                            Simbolo s = gestorTablas.buscar(lexemaFinal);
 
+                            // 2. Si no existe, lo insertamos en el ámbito actual
+                            if (s == null) {
+                                s = gestorTablas.insertar(lexemaFinal);
+                            }
+
+                            // Retornamos el ID del símbolo
                             return new Token(TipoToken.Tipo.IDENTIFICADOR, lexemaFinal, s.id, linea);
                         }
                     }

@@ -7,36 +7,48 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TablaSimbolos {
-    private final Map<String, Simbolo> table;
-    private int nextId;
+    private Map<String, Simbolo> tabla;
+    public int idTabla; // El número #1, #2...
 
-    public TablaSimbolos() {
-        table = new HashMap<>();
-        nextId = 0;
+    public TablaSimbolos(int id) {
+        this.tabla = new HashMap<>();
+        this.idTabla = id;
     }
 
-    public Simbolo findOrInsert(String lexema) {
-        if (table.containsKey(lexema)) {
-            return table.get(lexema);
-        } else {
-            Simbolo nuevoSimbolo = new Simbolo(lexema, nextId);
-            table.put(lexema, nuevoSimbolo);
-            nextId++;
-
-            return nuevoSimbolo;
-        }
+    public Simbolo buscar(String lexema) {
+        return tabla.get(lexema);
     }
 
-    public void volcarAFichero(String filePath) throws IOException {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-            writer.write("TABLA PRINCIPAL # 1 :");
+    public Simbolo insertar(String lexema) {
+        Simbolo s = new Simbolo(lexema);
+        // Aquí asignarías un ID único si lo necesitas para el token
+        tabla.put(lexema, s);
+        return s;
+    }
+
+    // Formato del PDF formatoTS.pdf
+    public void volcarAFichero(BufferedWriter writer) throws IOException {
+        // CABECERA: "CONTENIDOS DE LA TABLA # 1 :"
+        writer.write("CONTENIDOS DE LA TABLA # " + this.idTabla + " :");
+        writer.newLine();
+
+        for (Simbolo s : tabla.values()) {
+            // LÍNEA LEXEMA: "* LEXEMA : 'nombre'"
+            writer.write("* LEXEMA : '" + s.lexema + "'");
             writer.newLine();
 
-            for (Simbolo s : this.table.values()) {
-                String lineaSimbolo = String.format("* '" + s.lexema + "'");
-                writer.write(lineaSimbolo);
+            // LÍNEA ATRIBUTOS (Implementaremos la lógica completa luego)
+            writer.write("  ATRIBUTOS :");
+            writer.newLine();
+
+            if (s.tipo != null) {
+                // OJO: Comillas simples en el valor string
+                writer.write("  + tipo : '" + s.tipo + "'");
                 writer.newLine();
             }
+            // ... resto de atributos ...
         }
+        writer.newLine(); // Separación visual
+        writer.newLine();
     }
 }
