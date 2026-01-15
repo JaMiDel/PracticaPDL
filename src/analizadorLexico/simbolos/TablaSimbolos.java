@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class TablaSimbolos {
     private Map<String, Simbolo> tabla;
-    public int idTabla; // El número #1, #2...
+    public int idTabla;
 
     public TablaSimbolos(int id) {
         this.tabla = new HashMap<>();
@@ -21,34 +21,45 @@ public class TablaSimbolos {
 
     public Simbolo insertar(String lexema) {
         Simbolo s = new Simbolo(lexema);
-        // Aquí asignarías un ID único si lo necesitas para el token
         tabla.put(lexema, s);
         return s;
     }
 
-    // Formato del PDF formatoTS.pdf
     public void volcarAFichero(BufferedWriter writer) throws IOException {
-        // CABECERA: "CONTENIDOS DE LA TABLA # 1 :"
-        writer.write("CONTENIDOS DE LA TABLA # " + this.idTabla + " :");
+        writer.write("TABLA # " + this.idTabla + " :");
         writer.newLine();
 
         for (Simbolo s : tabla.values()) {
-            // LÍNEA LEXEMA: "* LEXEMA : 'nombre'"
             writer.write("* LEXEMA : '" + s.lexema + "'");
             writer.newLine();
-
-            // LÍNEA ATRIBUTOS (Implementaremos la lógica completa luego)
             writer.write("  ATRIBUTOS :");
             writer.newLine();
 
+            // 1. TIPO
             if (s.tipo != null) {
-                // OJO: Comillas simples en el valor string
                 writer.write("  + tipo : '" + s.tipo + "'");
                 writer.newLine();
             }
-            // ... resto de atributos ...
+
+            // 2. DESPLAZAMIENTO (Solo para variables y parámetros)
+            if ("variable".equals(s.categoria) || "parametro".equals(s.categoria)) {
+                writer.write("  + despl : " + s.despl);
+                writer.newLine();
+            }
+
+            // 3. NUM PARAM (Solo funciones)
+            if ("funcion".equals(s.categoria)) {
+                writer.write("  + numParam : " + s.numParam);
+                writer.newLine();
+                writer.write("  + tipoRetorno : '" + s.tipoRetorno + "'");
+                writer.newLine();
+
+                for (int i = 0; i < s.tiposParam.size(); i++) {
+                    writer.write("  + TipoParam" + (i + 1) + " : '" + s.tiposParam.get(i) + "'");
+                    writer.newLine();
+                }
+            }
         }
-        writer.newLine(); // Separación visual
-        writer.newLine();
+        writer.newLine(); writer.newLine();
     }
 }

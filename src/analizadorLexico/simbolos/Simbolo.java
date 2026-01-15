@@ -4,32 +4,40 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Simbolo {
+    private static int contadorIds = 0;
+
     public final String lexema;
     public final int id;
 
-    // --- ATRIBUTOS SEMÁNTICOS (Vitales para el paso 5) ---
     public String tipo;             // "int", "boolean", "void", "function", "error"
     public String categoria;        // "variable", "parametro", "funcion"
-    public int despl;               // Dirección de memoria relativa (desplazamiento)
+    public int despl;               // desplazamiento
 
 
     // Solo para funciones:
     public int numParam;
-    public List<String> tiposParam; // Lista de tipos de los argumentos: ["int", "string"]
-    public String tipoRetorno;      // Qué devuelve la función
-    public String etiqFuncion;      // Etiqueta en ensamblador (ej: "Func1")
+    public List<String> tiposParam; // Lista de tipos de los argumentos
+    public String tipoRetorno;
 
 
     public Simbolo(String nombre) {
         this.lexema = nombre;
         this.tiposParam = new ArrayList<>();
-        this.id = -1; // Se asignará al insertar en la tabla
+        this.id = contadorIds++;
     }
 
-    // Método para el formato estricto de la TS (VASt compliant)
     @Override
     public String toString() {
-        // TODO
         return lexema;
+    }
+
+    public static int getAncho(String tipo) {
+        switch (tipo) {
+            case "int": return 1;
+            case "float": return 2;
+            case "boolean": return 1;
+            case "string": return 64;
+            default: return 0;
+        }
     }
 }

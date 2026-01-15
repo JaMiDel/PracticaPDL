@@ -23,5 +23,21 @@ public enum NoTerminal {
     trm, trm_p, opProd, fUnr, f, fIDSuf,
 
     // lista argumentos
-    lArgs, lExps, mExps
+    lArgs, lExps, mExps,
+
+    // --- ACCIONES SEMÁNTICAS ---
+    ACCION_ABRIR_AMBITO,
+    ACCION_CERRAR_AMBITO,
+    ACCION_DECLARAR_VAR,
+
+    ACCION_BUSCAR_ID,
+    ACCION_COMPROBAR_ASIG,
+    ACCION_DECLARAR_FUNC,
+    ACCION_DECLARAR_PARAM,
+    ACCION_COMPROBAR_RETURN,
+    ACCION_APILAR_VOID,
+    ACCION_USO_VAR,
+    ACCION_PREPARAR_LLAMADA,
+    ACCION_COMPROBAR_ARGS,
+    ACCION_OPERADOR_BINARIO
 }

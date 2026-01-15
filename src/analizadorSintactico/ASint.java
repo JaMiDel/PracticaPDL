@@ -2,26 +2,37 @@ package analizadorSintactico;
 
 import analizadorLexico.ALex;
 import analizadorLexico.tokens.*;
+import analizadorLexico.simbolos.*;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Stack;
 
 public class ASint {
     private final BufferedWriter tokensWriter;
     private final BufferedWriter errorsWriter;
     private ALex alex;
-    private Stack<Object> pila;
+    private int desplActual = 0;
+    private Simbolo funcionActual = null;
+
+    private Stack<Object> pila; // Pila Sintáctica
+    private Stack<String> pilaSemantica; // Para atributos
+    private Stack<Simbolo> pilaLlamadas = new Stack<>(); // Para gestionar llamadas anidadas
+
     private BufferedWriter parseWriter;
+    private final BufferedWriter simbolosWriter;
     private int[][] tablaParsing;
 
     public ASint(ALex alex, Stack<Object> pila, BufferedWriter parseWriter,
-                 BufferedWriter tokensWriter, BufferedWriter errorsWriter) {
+                 BufferedWriter tokensWriter, BufferedWriter errorsWriter, BufferedWriter simbolosWriter) {
         this.alex = alex;
         this.pila = pila;
+        this.pilaSemantica = new Stack<>();
         this.parseWriter = parseWriter;
         this.tokensWriter = tokensWriter;
         this.errorsWriter = errorsWriter;
+        this.simbolosWriter = simbolosWriter;
 
         try {
             parseWriter.write("Descendente");
@@ -47,9 +58,304 @@ public class ASint {
         else {
             tokensWriter.write(token.toFileString());
             tokensWriter.newLine();
+
+            if (token.tipo == TipoToken.Tipo.INT ||
+                    token.tipo == TipoToken.Tipo.FLOAT ||
+                    token.tipo == TipoToken.Tipo.BOOLEAN ||
+                    token.tipo == TipoToken.Tipo.STRING ||
+                    token.tipo == TipoToken.Tipo.VOID) {
+
+                pilaSemantica.push(token.lexema);
+            }
+            // 2. Identificadores (uso o declaración)
+            else if (token.tipo == TipoToken.Tipo.IDENTIFICADOR) {
+                pilaSemantica.push(token.lexema);
+            }
+            // 3. Constantes (Expresiones) -> Apilamos su TIPO directamente
+            else if (token.tipo == TipoToken.Tipo.CONSTANTE_ENTERA) {
+                pilaSemantica.push("int");
+            }
+            else if (token.tipo == TipoToken.Tipo.CONSTANTE_REAL) {
+                pilaSemantica.push("float");
+            }
+            else if (token.tipo == TipoToken.Tipo.CADENA) {
+                pilaSemantica.push("string");
+            }
         }
 
         return token;
+    }
+
+    public void analizar() throws IOException {
+        pila.push(TipoToken.Tipo.EOF);
+        pila.push(NoTerminal.p);
+
+        Token token = pedirToken();
+
+        while(!pila.isEmpty()) {
+            Object cima = pila.peek();
+
+            // 1. Si es una ACCIÓN SEMÁNTICA (Marcador)
+            if (cima instanceof NoTerminal && ((NoTerminal) cima).name().startsWith("ACCION_")) {
+                pila.pop();
+                ejecutarAccionSemantica((NoTerminal) cima);
+                continue;
+            }
+
+            // 2. Si es un TOKEN (Terminal)
+            if(cima instanceof TipoToken.Tipo) {
+                if(cima == token.tipo){
+                    pila.pop();
+                    if(cima != TipoToken.Tipo.EOF) token = pedirToken();
+                } else {
+                    String msgError = "Error sintáctico: Se esperaba " + cima + ", encontrado '" + token.lexema + "'";
+                    System.err.println(msgError);
+                    errorsWriter.write(msgError);
+                    errorsWriter.newLine();
+                    return;
+                }
+            }
+            // 3. Si es un NO TERMINAL (Regla)
+            else if (cima instanceof NoTerminal) {
+                NoTerminal nt = (NoTerminal) cima;
+                int regla = tablaParsing[nt.ordinal()][token.tipo.ordinal()];
+
+                if (regla == -1){
+                    String msgError = "Error sintáctico en regla para: " + nt + ", se encontró: " + token.lexema;
+                    System.err.println(msgError);
+                    errorsWriter.write(msgError);
+                    errorsWriter.newLine();
+                    return;
+                }
+
+                parseWriter.write(" " + regla);
+                parseWriter.newLine();
+
+                pila.pop();
+                apilarRegla(regla);
+            }
+        }
+    }
+
+    private void ejecutarAccionSemantica(NoTerminal accion) {
+        switch (accion) {
+            case ACCION_ABRIR_AMBITO:
+                alex.getGestorTablas().abrirAmbito();
+                desplActual = 0; // Reset para variables locales
+                break;
+            case ACCION_CERRAR_AMBITO:
+                try {
+                    alex.getGestorTablas().cerrarAmbito(this.simbolosWriter);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case ACCION_DECLARAR_VAR:
+                if (pilaSemantica.size() >= 2) {
+                    String id = pilaSemantica.pop();
+                    String tipo = pilaSemantica.pop();
+
+                    Simbolo s = alex.getGestorTablas().buscar(id);
+                    if (s != null) {
+                        s.tipo = tipo;
+                        s.categoria = "variable";
+
+                        // calculo desplazamiento
+                        int ancho = Simbolo.getAncho(tipo);
+                        s.despl = desplActual;
+                        desplActual += ancho; // Avanzamos el puntero
+                    }
+                }
+                break;
+            case ACCION_BUSCAR_ID:
+                if (!pilaSemantica.isEmpty()) {
+                    String id = pilaSemantica.pop();
+                    Simbolo s = alex.getGestorTablas().buscar(id);
+
+                    if (s == null) {
+                        System.err.println("Error semántico: Variable '" + id + "' no declarada (Asumimos int global).");
+                        try { errorsWriter.write("Error semántico: Variable '" + id + "' no declarada."); errorsWriter.newLine(); } catch(IOException e){}
+                        s = alex.getGestorTablas().insertar(id);
+                        s.tipo = "int";
+                        s.categoria = "variable";
+                    }
+
+                    if (s.tipo != null) {
+                        pilaSemantica.push(s.tipo);
+                    } else {
+                        pilaSemantica.push("error");
+                    }
+                }
+                break;
+            case ACCION_COMPROBAR_ASIG:
+                if (pilaSemantica.size() >= 2) {
+                    String tipoExpr = pilaSemantica.pop();
+                    String tipoVar = pilaSemantica.pop();
+
+
+                    if (tipoExpr == null) tipoExpr = "error";
+                    if (tipoVar == null) tipoVar = "error";
+
+                    if (!tipoVar.equals(tipoExpr) && !tipoVar.equals("error") && !tipoExpr.equals("error")) {
+                        String error = "Error semántico: Asignación incorrecta. Se esperaba '" + tipoVar + "' pero se encontró '" + tipoExpr + "'.";
+                        System.err.println(error);
+                        try { errorsWriter.write(error); errorsWriter.newLine(); } catch(IOException e) {}
+                    }
+                }
+                break;
+            case ACCION_DECLARAR_FUNC:
+                if (pilaSemantica.size() >= 2) {
+                    String idFunc = pilaSemantica.pop();
+                    String tipoRetorno = pilaSemantica.pop();
+
+                    Simbolo s = alex.getGestorTablas().buscar(idFunc);
+                    if (s == null) s = alex.getGestorTablas().insertar(idFunc);
+
+                    s.tipo = "funcion";
+                    s.categoria = "funcion";
+                    s.tipoRetorno = tipoRetorno;
+                    s.numParam = 0;
+                    s.tiposParam = new ArrayList<>();
+
+                    this.funcionActual = s;
+                    this.desplActual = 0;   // Reseteamos desplazamiento
+
+                }
+                break;
+            case ACCION_DECLARAR_PARAM:
+                if (pilaSemantica.size() >= 2) {
+                    String id = pilaSemantica.pop();
+                    String tipo = pilaSemantica.pop();
+
+                    // 1. Insertar en Tabla Local
+                    Simbolo s = alex.getGestorTablas().insertar(id);
+                    s.tipo = tipo;
+                    s.categoria = "parametro";
+                    s.despl = desplActual;
+                    desplActual += Simbolo.getAncho(tipo);
+
+                    // 2. Registrar en Función Padre
+                    if (this.funcionActual != null) {
+                        this.funcionActual.numParam++;
+                        this.funcionActual.tiposParam.add(tipo);
+                    }
+                }
+                break;
+            case ACCION_COMPROBAR_RETURN:
+                if (!pilaSemantica.isEmpty()) {
+                    String tipoExpr = pilaSemantica.pop();
+
+                    if (funcionActual != null) {
+                        if (!tipoExpr.equals(funcionActual.tipoRetorno) && !tipoExpr.equals("error")) {
+                            String err = "Error semántico: La función '" + funcionActual.lexema +
+                                    "' debe devolver '" + funcionActual.tipoRetorno +
+                                    "' pero devuelve '" + tipoExpr + "'.";
+                            System.err.println(err);
+                            try { errorsWriter.write(err); errorsWriter.newLine(); } catch(IOException e){}
+                        }
+                    } else {
+                        System.err.println("Error: Return fuera de función (o lógica global no manejada).");
+                    }
+                }
+                break;
+            case ACCION_APILAR_VOID:
+                pilaSemantica.push("void");
+                break;
+            case ACCION_USO_VAR:
+                // La pila tiene el LEXEMA del ID (puesto por regla 72).
+                if (!pilaSemantica.isEmpty()) {
+                    String id = pilaSemantica.pop();
+
+                    if (id.equals("true") || id.equals("false")) {
+                        pilaSemantica.push("boolean");
+                        break;
+                    }
+
+                    Simbolo s = alex.getGestorTablas().buscar(id);
+
+                    if (s == null || s.tipo == null) {
+                        pilaSemantica.push("error");
+                        String err = "Error semántico: La variable '" + id + "' no ha sido declarada.";
+                        System.err.println(err);
+                        try { errorsWriter.write(err); errorsWriter.newLine(); } catch(IOException e){}
+                    } else {
+                        pilaSemantica.push(s.tipo);
+                    }
+                }
+                break;
+
+            case ACCION_PREPARAR_LLAMADA:
+                if (!pilaSemantica.isEmpty()) {
+                    String idFunc = pilaSemantica.pop();
+                    Simbolo s = alex.getGestorTablas().buscar(idFunc);
+                    if (s == null || !"funcion".equals(s.categoria)) {
+                        pilaLlamadas.push(null);
+                    } else {
+                        pilaLlamadas.push(s);
+                    }
+                    // Apilamos una "marca" en la pila semántica para saber dónde empiezan los argumentos
+                    pilaSemantica.push("MARCA_ARGS");
+                }
+                break;
+
+            case ACCION_COMPROBAR_ARGS:
+                Simbolo funcion = pilaLlamadas.pop();
+
+                Stack<String> argsEncontrados = new Stack<>();
+                while (!pilaSemantica.isEmpty()) {
+                    String tope = pilaSemantica.pop();
+                    if ("MARCA_ARGS".equals(tope)) break; // Encontramos el tope
+                    argsEncontrados.push(tope);
+                }
+
+                if (funcion != null) {
+                    // 1. Verificar número de argumentos
+                    if (argsEncontrados.size() != funcion.numParam) {
+                        String err = "Error semántico: La función '" + funcion.lexema + "' espera " +
+                                funcion.numParam + " argumentos, pero recibió " + argsEncontrados.size() + ".";
+                        System.err.println(err);
+                        try { errorsWriter.write(err); errorsWriter.newLine(); } catch(IOException e){}
+                    }
+                    else {
+                        // 2. Verificar tipos uno a uno
+                        for (int i = 0; i < funcion.numParam; i++) {
+                            String tipoEsperado = funcion.tiposParam.get(i);
+                            String tipoRecibido = argsEncontrados.pop();
+
+                            if (!tipoRecibido.equals(tipoEsperado) && !tipoRecibido.equals("error")) {
+                                String err = "Error semántico: Argumento " + (i+1) + " de '" + funcion.lexema +
+                                        "' incorrecto. Esperaba " + tipoEsperado + ", recibió " + tipoRecibido + ".";
+                                System.err.println(err);
+                                try { errorsWriter.write(err); errorsWriter.newLine(); } catch(IOException e){}
+                            }
+                        }
+                    }
+
+                    pilaSemantica.push(funcion.tipoRetorno);
+                } else {
+                    pilaSemantica.push("error");
+                }
+                break;
+            case ACCION_OPERADOR_BINARIO:
+                if (pilaSemantica.size() >= 2) {
+                    String op2 = pilaSemantica.pop();
+                    String op1 = pilaSemantica.pop();
+
+                    if (op1.equals("int") && op2.equals("int")) {
+                        pilaSemantica.push("int");
+                    } else if ((op1.equals("float") || op1.equals("int")) &&
+                            (op2.equals("float") || op2.equals("int"))) {
+                        pilaSemantica.push("float");
+                    } else if (op1.equals("error") || op2.equals("error")) {
+                        pilaSemantica.push("error");
+                    } else {
+                        System.err.println("Error tipos incompatibles en operación: " + op1 + " con " + op2);
+                        try { errorsWriter.write("Error tipos: " + op1 + " con " + op2); errorsWriter.newLine(); } catch(IOException e){}
+                        pilaSemantica.push("error");
+                    }
+                }
+                break;
+        }
     }
 
     public void inicializarTabla() {
@@ -430,53 +736,6 @@ public class ASint {
         tablaParsing[NoTerminal.sC.ordinal()][TipoToken.Tipo.IF.ordinal()] = 82;
     }
 
-    public void analizar() throws IOException {
-        pila.push(TipoToken.Tipo.EOF);
-        pila.push(NoTerminal.p);
-
-        Token token = pedirToken();
-
-        while(!pila.isEmpty()) {
-            Object cima = pila.peek();
-
-            if(cima instanceof TipoToken.Tipo) {
-                if(cima == token.tipo){
-                    pila.pop();
-                    if(cima != TipoToken.Tipo.EOF) token = pedirToken();
-                } else {
-                    String msgError = "Error sintáctico: Se esperaba " + cima + ", encontrado '" + token.lexema + "'";
-                    System.err.println(msgError);
-                    errorsWriter.write(msgError);
-                    errorsWriter.newLine();
-                    return;
-                }
-            } else if (cima instanceof NoTerminal) {
-                NoTerminal nt = (NoTerminal) cima;
-
-                // AQUI LEEREMOS DE LA tablaParsing
-                int regla = tablaParsing[nt.ordinal()][token.tipo.ordinal()];
-
-                if (regla == -1){
-                    String msgError = "Error sintáctico en regla para: " + nt + ", se encontró: " + token.lexema;
-                    System.err.println(msgError);
-                    try {
-                        errorsWriter.write(msgError);
-                        errorsWriter.newLine();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    return;
-                }
-
-                parseWriter.write(" " + regla);
-                parseWriter.newLine();
-
-                pila.pop();
-                apilarRegla(regla);
-            }
-        }
-    }
-
     private void apilarRegla(int regla) throws IOException {
         switch (regla) {
             case 1: // p → lUds EOF
@@ -522,12 +781,15 @@ public class ASint {
             case 14: // sC → sSw
                 pila.push(NoTerminal.sSw);
                 break;
-            case 15: // inicID → IDENTIFICADOR restID
+            case 15: // inicID → IDENTIFICADOR ACCION_BUSCAR_ID restID
                 pila.push(NoTerminal.restID);
+                pila.push(NoTerminal.ACCION_BUSCAR_ID);
                 pila.push(TipoToken.Tipo.IDENTIFICADOR);
                 break;
-            case 16: // restID → opA e PUNTOYCOMA
+
+            case 16: // restID → opA e ACCION_COMPROBAR_ASIG PUNTOYCOMA
                 pila.push(TipoToken.Tipo.PUNTOYCOMA);
+                pila.push(NoTerminal.ACCION_COMPROBAR_ASIG);
                 pila.push(NoTerminal.e);
                 pila.push(NoTerminal.opA);
                 break;
@@ -559,9 +821,12 @@ public class ASint {
                 pila.push(TipoToken.Tipo.RETURN);
                 break;
             case 23: // sRtn_p → e
+                pila.push(NoTerminal.ACCION_COMPROBAR_RETURN);
                 pila.push(NoTerminal.e);
                 break;
             case 24: // sRtn_p → lambda
+                pila.push(NoTerminal.ACCION_COMPROBAR_RETURN); // 2. Comprueba que la función sea void
+                pila.push(NoTerminal.ACCION_APILAR_VOID);      // 1. Apila "void"
                 break;
             case 25: // sBrk → BREAK PUNTOYCOMA
                 pila.push(TipoToken.Tipo.PUNTOYCOMA);
@@ -613,7 +878,14 @@ public class ASint {
             case 35: // dfltOpc → lambda
                 break;
             case 36: // dVar → LET tp IDENTIFICADOR PUNTOYCOMA
+                // Orden inverso de apilado:
+                // 1. PUNTOYCOMA
+                // 2. ACCION_DECLARAR_VAR (¡Ejecutar justo después de leer ID!)
+                // 3. IDENTIFICADOR
+                // 4. tp
+                // 5. LET
                 pila.push(TipoToken.Tipo.PUNTOYCOMA);
+                pila.push(NoTerminal.ACCION_DECLARAR_VAR);
                 pila.push(TipoToken.Tipo.IDENTIFICADOR);
                 pila.push(NoTerminal.tp);
                 pila.push(TipoToken.Tipo.LET);
@@ -630,14 +902,21 @@ public class ASint {
             case 40: // tp → STRING
                 pila.push(TipoToken.Tipo.STRING);
                 break;
-            case 41: // dFunc → FUNCTION tpRtn IDENTIFICADOR PARENTESISIZQ
-                     // lPmts PARENTESISDER LLAVEIZQ lUds LLAVEDER
+            case 41: // dFunc → FUNCTION tpRtn ID ( lPmts ) { lUds }
+
+                pila.push(NoTerminal.ACCION_CERRAR_AMBITO);
                 pila.push(TipoToken.Tipo.LLAVEDER);
                 pila.push(NoTerminal.lUds);
+
                 pila.push(TipoToken.Tipo.LLAVEIZQ);
                 pila.push(TipoToken.Tipo.PARENTESISDER);
                 pila.push(NoTerminal.lPmts);
+
+                pila.push(NoTerminal.ACCION_ABRIR_AMBITO);
+
                 pila.push(TipoToken.Tipo.PARENTESISIZQ);
+
+                pila.push(NoTerminal.ACCION_DECLARAR_FUNC);
                 pila.push(TipoToken.Tipo.IDENTIFICADOR);
                 pila.push(NoTerminal.tpRtn);
                 pila.push(TipoToken.Tipo.FUNCTION);
@@ -663,6 +942,7 @@ public class ASint {
                 pila.push(TipoToken.Tipo.COMA);
                 break;
             case 48: // pmt → tp IDENTIFICADOR
+                pila.push(NoTerminal.ACCION_DECLARAR_PARAM);
                 pila.push(TipoToken.Tipo.IDENTIFICADOR);
                 pila.push(NoTerminal.tp);
                 break;
@@ -708,6 +988,7 @@ public class ASint {
                 break;
             case 60: // eArit_p → SUMA trm eArit_p
                 pila.push(NoTerminal.eArit_p);
+                pila.push(NoTerminal.ACCION_OPERADOR_BINARIO);
                 pila.push(NoTerminal.trm);
                 pila.push(TipoToken.Tipo.SUMA);
                 break;
@@ -756,11 +1037,14 @@ public class ASint {
                 pila.push(TipoToken.Tipo.PARENTESISIZQ);
                 break;
             case 74: // fIDSuf → PARENTESISIZQ lArgs PARENTESISDER
+                pila.push(NoTerminal.ACCION_COMPROBAR_ARGS);
                 pila.push(TipoToken.Tipo.PARENTESISDER);
                 pila.push(NoTerminal.lArgs);
                 pila.push(TipoToken.Tipo.PARENTESISIZQ);
+                pila.push(NoTerminal.ACCION_PREPARAR_LLAMADA);
                 break;
             case 75: // fIDSuf → lambda
+                pila.push(NoTerminal.ACCION_USO_VAR);
                 break;
             case 76: // lArgs → lExps
                 pila.push(NoTerminal.lExps);

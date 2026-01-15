@@ -2,7 +2,6 @@ package analizadorLexico;
 
 import analizadorLexico.simbolos.GestorTablas;
 import analizadorLexico.simbolos.Simbolo;
-import analizadorLexico.simbolos.TablaSimbolos;
 import analizadorLexico.tokens.TipoToken;
 import analizadorLexico.tokens.Token;
 
@@ -140,7 +139,7 @@ public class ALex {
                     if (Character.isLetterOrDigit((char) c) || c == '_') {
                         lexema.append((char) c);
                     } else {
-                        this.nextChar = c; //unreadChar();
+                        this.nextChar = c;
 
                         String lexemaFinal = lexema.toString();
 
@@ -151,7 +150,6 @@ public class ALex {
                         if(palabrasReservadas.containsKey(lexemaFinal)){
                             return new Token(palabrasReservadas.get(lexemaFinal), lexemaFinal, null, linea);
                         } else {
-                            // --- LÓGICA CON GESTOR DE TABLAS ---
                             // 1. Buscamos si ya existe (visible desde este ámbito)
                             Simbolo s = gestorTablas.buscar(lexemaFinal);
 
@@ -159,8 +157,6 @@ public class ALex {
                             if (s == null) {
                                 s = gestorTablas.insertar(lexemaFinal);
                             }
-
-                            // Retornamos el ID del símbolo
                             return new Token(TipoToken.Tipo.IDENTIFICADOR, lexemaFinal, s.id, linea);
                         }
                     }
@@ -295,5 +291,9 @@ public class ALex {
         } else {
             return this.reader.read();
         }
+    }
+
+    public analizadorLexico.simbolos.GestorTablas getGestorTablas() {
+        return this.gestorTablas;
     }
 }

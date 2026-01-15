@@ -19,7 +19,7 @@ public class Main {
         String ficheroErrores = ficheroFuente + ".errores.txt";
         String ficheroTokens = ficheroFuente + ".tokens.txt";
         String ficheroSimbolos = ficheroFuente + ".simbolos.txt";
-        String ficheroParse = ficheroFuente + ".parse.txt"; // ¡Nuevo fichero!
+        String ficheroParse = ficheroFuente + ".parse.txt";
 
         GestorTablas gestor = new GestorTablas();
 
@@ -37,7 +37,7 @@ public class Main {
             Stack<Object> pila = new Stack<>();
 
             // 3. Crear Sintáctico (Conectamos todo)
-            ASint aSint = new ASint(aLex, pila, parseWriter, tokensWriter, errorsWriter);
+            ASint aSint = new ASint(aLex, pila, parseWriter, tokensWriter, errorsWriter, simbolosWriter);
 
             // 4. ¡EJECUTAR EL ANÁLISIS!
             System.out.println("Iniciando Análisis Sintáctico...");
@@ -46,7 +46,6 @@ public class Main {
 
             // 5. Volcar la Tabla Global (la última que queda en la pila)
             try {
-                // Al cerrar el ámbito global, el gestor lo vuelca al fichero automáticamente
                 gestor.cerrarAmbito(simbolosWriter);
                 System.out.println("Tabla de símbolos generada.");
             } catch (IOException e) {
