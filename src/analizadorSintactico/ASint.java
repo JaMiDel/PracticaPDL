@@ -1,9 +1,8 @@
 package analizadorSintactico;
 
 import analizadorLexico.ALex;
-import analizadorLexico.tokens.*;
 import analizadorLexico.simbolos.*;
-
+import analizadorLexico.tokens.*;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -172,7 +171,7 @@ public class ASint {
                     String id = pilaSemantica.pop();
                     Simbolo s = alex.getGestorTablas().buscar(id);
 
-                    if (s == null) {
+                    if (s == null || s.tipo == null) {
                         System.err.println("Error semántico: Variable '" + id + "' no declarada (Asumimos int global).");
                         try { errorsWriter.write("Error semántico: Variable '" + id + "' no declarada."); errorsWriter.newLine(); } catch(IOException e){}
                         s = alex.getGestorTablas().insertar(id);
