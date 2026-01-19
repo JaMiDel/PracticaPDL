@@ -120,10 +120,18 @@ public class ASint {
                 int regla = tablaParsing[nt.ordinal()][token.tipo.ordinal()];
 
                 if (regla == -1){
-                    String msgError = "Error sintáctico en regla para: " + nt + ", se encontró: " + token.lexema;
+                    String descripcion = describirNoTerminal(nt);
+                    String msgError = "Error sintáctico en línea " + token.linea +
+                            ": Se esperaba " + descripcion +
+                            ", pero se encontró '" + token.lexema + "'";
+
                     System.err.println(msgError);
-                    errorsWriter.write(msgError);
-                    errorsWriter.newLine();
+                    try {
+                        errorsWriter.write(msgError);
+                        errorsWriter.newLine();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     return;
                 }
 
@@ -133,6 +141,39 @@ public class ASint {
                 pila.pop();
                 apilarRegla(regla);
             }
+        }
+    }
+
+    private String describirNoTerminal(NoTerminal nt) {
+        switch (nt) {
+            case p: return "el programa principal";
+            case lUds: return "una lista de declaraciones o sentencias";
+            case ud: return "una declaración o sentencia";
+            case dVar: return "una declaración de variable (let)";
+            case dFunc: return "una declaración de función";
+            case tp: return "un tipo de dato (int, float...)";
+            case tpRtn: return "un tipo de retorno";
+            case lPmts: return "una lista de parámetros";
+            case s: return "una sentencia";
+            case sS: return "una sentencia simple";
+            case sC: return "una sentencia compuesta (if, switch...)";
+            case inicID: return "una asignación o llamada a función";
+            case sW: return "una instrucción de escritura (write)";
+            case sRd: return "una instrucción de lectura (read)";
+            case sRtn: return "una sentencia de retorno (return)";
+            case sCndS: return "una sentencia condicional (if)";
+            case sSw: return "una estructura switch";
+            case cSw: return "el cuerpo del switch (casos)";
+            case cC: return "un caso (case)";
+            case dfltOpc: return "la opción por defecto (default)";
+            case e: case eAnd: case eRel: case eCmp: case eArit: case trm: case f:
+                return "una expresión";
+            case trm_p: case eArit_p:
+                return "un operador aritmético o fin de expresión";
+            case fIDSuf:
+                return "una llamada a función o fin de identificador";
+            default:
+                return "una estructura válida (" + nt.name() + ")";
         }
     }
 
